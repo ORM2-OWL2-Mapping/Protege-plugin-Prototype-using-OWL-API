@@ -1,0 +1,9 @@
+.idea/
+.idea_modules/
+out/
+target/
+*.iml
+*.ipr
+*.iws
+*.owl
+OWL_API_Console_Program/*.xml
