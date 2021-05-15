@@ -21,15 +21,15 @@ public class OwlAPI {
     public OwlAPI (OWLOntologyManager manager) {
         this.manager = manager;
         this.ontology = manager.getOntologies().iterator().next();
-        this.ontology_iri = ontology.getOntologyID().getOntologyIRI().get();
+        this.ontology_iri = IRI.create(ontology.getOntologyID().getOntologyIRI().get().toString() + "#");
         this.entityRemover = new OWLEntityRemover(Collections.singleton(this.ontology));
         this.owlEntityRenamer = new OWLEntityRenamer(this.manager, this.manager.getOntologies());
     }
 
     public OwlAPI (String iri) throws Exception {
         this.manager = OWLManager.createOWLOntologyManager();
-        this.ontology_iri = IRI.create(iri);
-        this.ontology = manager.createOntology(this.ontology_iri);
+        this.ontology = manager.createOntology(IRI.create(iri));
+        this.ontology_iri = IRI.create(iri + "#");
         this.entityRemover = new OWLEntityRemover(Collections.singleton(this.ontology));
         this.owlEntityRenamer = new OWLEntityRenamer(this.manager, this.manager.getOntologies());
     }
@@ -220,7 +220,7 @@ public class OwlAPI {
         manager.addAxiom(ontology, classDeclarationAx);
 
         updateCloseWorld();
-        debugSave();
+        //debugSave();
     }
     public void declareEntityType2(String class_name) throws Exception {
 
