@@ -198,8 +198,128 @@ public class ORMToOWLTesting extends TestBase {
             compareOntologies(filename, filename);
         }
 
+        @Test
+        @DisplayName("08 - Обновление одного EntityType, в онтологии один EntityType")
+        public void updateOneEntityTypeInExistOntologyWithOneEntityType() throws Exception {
 
+            String filename = "test08.owl";
+            OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+            File file = new File(FOR_TESTING_ONTOLOGIES_DIR + filename);
+            OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+            ontologyManager = new OwlAPI(manager);
+
+            ontologyManager.updateEntityType("Class_A", "Class_D");
+
+            ontologyManager.saveOntologyInFile(ACTUAL_ONTOLOGIES_DIR + filename);
+
+            compareOntologies(filename, filename);
+        }
+
+        @Test
+        @DisplayName("09 - Обновление одного EntityType, в онтологии два EntityType")
+        public void updateOneEntityTypeInExistOntologyWithTwoEntityType() throws Exception {
+
+            String filename = "test09.owl";
+            OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+            File file = new File(FOR_TESTING_ONTOLOGIES_DIR + filename);
+            OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+            ontologyManager = new OwlAPI(manager);
+
+            ontologyManager.updateEntityType("Class_A", "Class_D");
+
+            ontologyManager.saveOntologyInFile(ACTUAL_ONTOLOGIES_DIR + filename);
+
+            compareOntologies(filename, filename);
+        }
+
+        @Test
+        @DisplayName("10 - Обновление одного EntityType, в онтологии три EntityType")
+        public void updateOneEntityTypeInExistOntologyWithThreeEntityType() throws Exception {
+
+            String filename = "test10.owl";
+            OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+            File file = new File(FOR_TESTING_ONTOLOGIES_DIR + filename);
+            OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+            ontologyManager = new OwlAPI(manager);
+
+            ontologyManager.updateEntityType("Class_A", "Class_D");
+
+            ontologyManager.saveOntologyInFile(ACTUAL_ONTOLOGIES_DIR + filename);
+
+            compareOntologies(filename, filename);
+        }
     }
 
+    @Nested
+    @DisplayName("02 - Тестирование ValueType")
+    class ValueTypeTesting {
 
+        @Test
+        @DisplayName("11 - Добавление одного ValueType в существующую онтологию, cодержащую один EntityType")
+        public void declareOneValueTypeInExistOntologyWithOneEntityType() throws Exception {
+
+            String filename = "test11.owl";
+            OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+            File file = new File(FOR_TESTING_ONTOLOGIES_DIR + filename);
+            OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+            ontologyManager = new OwlAPI(manager);
+
+            ontologyManager.declareValueType("ValueType_A", "", "Class_A");
+
+            ontologyManager.saveOntologyInFile(ACTUAL_ONTOLOGIES_DIR + filename);
+
+            compareOntologies(filename, filename);
+        }
+
+        @Test
+        @DisplayName("12 - Добавление одного ValueType в существующую онтологию, cодержащую два EntityType")
+        public void declareOneValueTypeInExistOntologyWithTwoEntityType() throws Exception {
+
+            String filename = "test12.owl";
+            OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+            File file = new File(FOR_TESTING_ONTOLOGIES_DIR + filename);
+            OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+            ontologyManager = new OwlAPI(manager);
+
+            ontologyManager.declareValueType("ValueType_A", "", "Class_A");
+
+            ontologyManager.saveOntologyInFile(ACTUAL_ONTOLOGIES_DIR + filename);
+
+            compareOntologies(filename, filename);
+        }
+
+        @Test
+        @DisplayName("13 - Добавление второго ValueType к единственному EntityType")
+        public void declareSecondValueTypeInExistOntologyWithOneEntityType() throws Exception {
+
+            String filename = "test13.owl";
+            OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+            File file = new File(FOR_TESTING_ONTOLOGIES_DIR + filename);
+            OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+            ontologyManager = new OwlAPI(manager);
+
+            ontologyManager.declareValueType("ValueType_B", "", "Class_A");
+
+            ontologyManager.saveOntologyInFile(ACTUAL_ONTOLOGIES_DIR + filename);
+
+            compareOntologies(filename, filename);
+        }
+
+        @Test
+        @DisplayName("14 - Добавление второго ValueType ко второму EntityType")
+        public void declareSecondValueTypeInExistOntologyWithTwoEntityType() throws Exception {
+
+            String filename = "test14.owl";
+            OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+            File file = new File(FOR_TESTING_ONTOLOGIES_DIR + filename);
+            OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+            ontologyManager = new OwlAPI(manager);
+
+            ontologyManager.declareValueType("ValueType_B", "", "Class_B");
+
+            ontologyManager.saveOntologyInFile(ACTUAL_ONTOLOGIES_DIR + filename);
+
+            compareOntologies(filename, filename);
+        }
+    }
 }
