@@ -296,6 +296,12 @@ public class OwlAPI {
 
     }
 
+    public void updateEntityType(String current_class_name, String new_class_name) throws Exception {
+
+        List<OWLOntologyChange> changes = owlEntityRenamer.changeIRI(IRI.create(ontology_iri + current_class_name), IRI.create(ontology_iri + new_class_name));
+        manager.applyChanges(changes);
+    }
+
     /**
     * Удаление Entity Type (OWL-класса)
     * @param class_name - имя объявляемого класса
