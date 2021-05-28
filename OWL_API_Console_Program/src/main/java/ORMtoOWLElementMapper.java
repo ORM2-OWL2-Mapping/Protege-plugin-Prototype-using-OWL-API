@@ -5,9 +5,6 @@ import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.OWLEntityRemover;
 import org.semanticweb.owlapi.util.OWLEntityRenamer;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
-import org.vstu.orm2diagram.model.ORM_EntityType;
-import org.vstu.nodelinkdiagram.DiagramElement;
-import org.vstu.orm2diagram.model.ORM_Subtyping;
 
 
 import java.io.File;
@@ -235,13 +232,6 @@ public abstract class ORMtoOWLElementMapper {
         }
     }
 
-    public abstract void addElement(DiagramElement element);
-
-    public abstract void updateElement(DiagramElement editedElement, DiagramElement existElement);
-
-    public abstract void removeElement(DiagramElement element);
-
-
 
 
     public abstract void addElement(ORMElement element);
@@ -260,48 +250,46 @@ class ORMtoOWLEntityTypeMapper extends ORMtoOWLElementMapper {
         super(manager);
     }
 
-    @Override
-    public void addElement(DiagramElement element) {
+    private void renameAllRelatedElements(String className, String newClassName) {
 
-        clearCloseWorld();
+        Map<OWLEntity, IRI> changeMap = new HashMap<>();
 
-        ORM_EntityType entityType = (ORM_EntityType)element;
+        for (OWLClass ontologyClass : ontology.getClassesInSignature()) {
 
-        // Объявление нового OWL-класса
-        OWLClass owl_class = df.getOWLClass(IRI.create(ontology_iri + entityType.getName()));
-        OWLDeclarationAxiom classDeclarationAx = df.getOWLDeclarationAxiom(owl_class);
-        manager.addAxiom(ontology, classDeclarationAx);
+            String ontologyClassName = ontologyClass.getIRI().getShortForm();
+            if ((ontologyClassName.startsWith("union__") || ontologyClassName.startsWith("not__")) && ontologyClassName.contains(className)) {
 
-        createCloseWorld();
-    }
+                String newOntologyClassName = ontologyClassName.replaceFirst("_" + className + "_", "_" + newClassName + "_");
+                newOntologyClassName = newOntologyClassName.replaceFirst("_" + className + "$", "_" + newClassName);
+                changeMap.put(ontologyClass, IRI.create(ontology_iri + newOntologyClassName));
+            }
+        }
 
-    @Override
-    public void updateElement(DiagramElement existElement, DiagramElement editedElement) {
+        for (OWLObjectProperty ontologyObjProp : ontology.getObjectPropertiesInSignature()) {
 
-        ORM_EntityType existEntityType = (ORM_EntityType)existElement;
-        ORM_EntityType editedEntityType = (ORM_EntityType)editedElement;
+            String ontologyObjPropName = ontologyObjProp.getIRI().getShortForm();
+            if (ontologyObjPropName.contains(className)) {
 
-        List<OWLOntologyChange> changes = owlEntityRenamer.changeIRI(IRI.create(ontology_iri + existEntityType.getName()), IRI.create(ontology_iri + editedEntityType.getName()));
+                String newOntologyObjPropName = ontologyObjPropName.replaceFirst("\\." + className + "\\.", "." + newClassName + ".");
+                newOntologyObjPropName = newOntologyObjPropName.replaceFirst("\\." + className + "$", "." + newClassName);
+                changeMap.put(ontologyObjProp, IRI.create(ontology_iri + newOntologyObjPropName));
+            }
+        }
+
+        for (OWLDataProperty ontologyDataProp : ontology.getDataPropertiesInSignature()) {
+
+            String ontologyDataPropName = ontologyDataProp.getIRI().getShortForm();
+            if (ontologyDataPropName.contains(className)) {
+
+                String newOntologyDataPropName = ontologyDataPropName.replaceFirst("\\." + className + "\\.", "." + newClassName + ".");
+                newOntologyDataPropName = newOntologyDataPropName.replaceFirst("\\." + className + "$", "." + newClassName);
+                changeMap.put(ontologyDataProp, IRI.create(ontology_iri + newOntologyDataPropName));
+            }
+        }
+
+        List<OWLOntologyChange> changes = owlEntityRenamer.changeIRI(changeMap);
         manager.applyChanges(changes);
     }
-
-    @Override
-    public void removeElement(DiagramElement element) {
-
-        clearCloseWorld();
-
-        ORM_EntityType entityType = (ORM_EntityType)element;
-
-        // Удаление OWL-класса
-        OWLClass owlClass = df.getOWLClass(IRI.create(ontology_iri + entityType.getName()));
-        removeOWLEntity(owlClass);
-
-        createCloseWorld();
-    }
-
-
-
-
 
     @Override
     public void addElement(ORMElement element) {
@@ -323,6 +311,8 @@ class ORMtoOWLEntityTypeMapper extends ORMtoOWLElementMapper {
 
         ORMEntityType existEntityType = (ORMEntityType)existElement;
         ORMEntityType editedEntityType = (ORMEntityType)editedElement;
+
+        renameAllRelatedElements(existEntityType.getName(), editedEntityType.getName());
 
         List<OWLOntologyChange> changes = owlEntityRenamer.changeIRI(IRI.create(ontology_iri + existEntityType.getName()), IRI.create(ontology_iri + editedEntityType.getName()));
         manager.applyChanges(changes);
@@ -349,70 +339,6 @@ class ORMtoOWLSubtypingMapper extends ORMtoOWLElementMapper {
     public ORMtoOWLSubtypingMapper(OWLOntologyManager manager) {
         super(manager);
     }
-
-
-    @Override
-    public void addElement(DiagramElement element) {
-
-        clearCloseWorld();
-
-        ORM_Subtyping subtype = (ORM_Subtyping)element;
-        ORM_EntityType sourceEntityType = subtype.getSource();
-        ORM_EntityType targetEntityType = subtype.getTarget();
-
-        OWLClass child_owl_class = df.getOWLClass(IRI.create(ontology_iri + sourceEntityType.getName()));
-        OWLClass parent_owl_class = df.getOWLClass(IRI.create(ontology_iri + targetEntityType.getName()));
-        OWLSubClassOfAxiom subClassAxiom = df.getOWLSubClassOfAxiom(child_owl_class, parent_owl_class);
-        manager.addAxiom(ontology, subClassAxiom);
-
-        updateClassSubclasses(parent_owl_class);
-        createCloseWorld();
-    }
-
-    @Override
-    public void updateElement(DiagramElement existElement, DiagramElement editedElement) {
-
-        ORM_Subtyping existSubtyping = (ORM_Subtyping)existElement;
-        ORM_Subtyping editedSubtyping = (ORM_Subtyping)editedElement;
-
-        removeElement(existSubtyping);
-        addElement(editedSubtyping);
-    }
-
-    @Override
-    public void removeElement(DiagramElement element) {
-
-        clearCloseWorld();
-
-        ORM_Subtyping subtype = (ORM_Subtyping)element;
-        ORM_EntityType sourceEntityType = subtype.getSource();
-        ORM_EntityType targetEntityType = subtype.getTarget();
-
-        OWLClass child_owl_class = df.getOWLClass(IRI.create(ontology_iri + sourceEntityType.getName()));
-        OWLClass parent_owl_class = df.getOWLClass(IRI.create(ontology_iri + targetEntityType.getName()));
-        OWLSubClassOfAxiom subClassAxiom = df.getOWLSubClassOfAxiom(child_owl_class, parent_owl_class);
-
-        for (OWLClass subclass : getSubClasses(parent_owl_class)) {
-            if (subclass.getIRI().getShortForm().startsWith("union__") && getSubClasses(subclass).size() > 1) {
-                for (OWLClass owlClass : getSubClasses(subclass)) {
-                    if (owlClass.equals(child_owl_class)) {
-                        subClassAxiom = df.getOWLSubClassOfAxiom(child_owl_class, subclass);
-                        break;
-                    }
-                }
-                break;
-            }
-        }
-
-        manager.removeAxiom(ontology, subClassAxiom);
-
-        updateClassSubclasses(parent_owl_class);
-        createCloseWorld();
-    }
-
-
-
-
 
     @Override
     public void addElement(ORMElement element) {
@@ -479,28 +405,6 @@ class ORMtoOWLValueTypeMapper extends ORMtoOWLElementMapper {
     public ORMtoOWLValueTypeMapper(OWLOntologyManager manager) {
         super(manager);
     }
-
-    @Override
-    public void addElement(DiagramElement element) {
-
-
-    }
-
-    @Override
-    public void updateElement(DiagramElement existElement, DiagramElement editedElement) {
-
-
-    }
-
-    @Override
-    public void removeElement(DiagramElement element) {
-
-
-    }
-
-
-
-
 
     @Override
     public void addElement(ORMElement element) {
@@ -586,28 +490,6 @@ class ORMtoOWLUnaryRoleMapper extends ORMtoOWLElementMapper {
     }
 
     @Override
-    public void addElement(DiagramElement element) {
-
-
-    }
-
-    @Override
-    public void updateElement(DiagramElement existElement, DiagramElement editedElement) {
-
-
-    }
-
-    @Override
-    public void removeElement(DiagramElement element) {
-
-
-    }
-
-
-
-
-
-    @Override
     public void addElement(ORMElement element) {
 
         ORMUnaryRole unaryRole = (ORMUnaryRole)element;
@@ -689,28 +571,6 @@ class ORMtoOWLBinaryRoleMapper extends ORMtoOWLElementMapper {
     public ORMtoOWLBinaryRoleMapper(OWLOntologyManager manager) {
         super(manager);
     }
-
-    @Override
-    public void addElement(DiagramElement element) {
-
-
-    }
-
-    @Override
-    public void updateElement(DiagramElement existElement, DiagramElement editedElement) {
-
-
-    }
-
-    @Override
-    public void removeElement(DiagramElement element) {
-
-
-    }
-
-
-
-
 
     @Override
     public void addElement(ORMElement element) {

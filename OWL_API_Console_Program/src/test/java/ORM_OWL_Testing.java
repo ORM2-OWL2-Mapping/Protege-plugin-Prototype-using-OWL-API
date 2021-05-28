@@ -8,10 +8,7 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.OWLXMLDocumentFormat;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.OWLEntityRenamer;
-import org.vstu.nodelinkdiagram.MainDiagramModel;
-import org.vstu.orm2diagram.model.ORM_DiagramFactory;
-import org.vstu.orm2diagram.model.ORM_EntityType;
-import org.vstu.orm2diagram.model.ORM_Subtyping;
+
 
 import java.io.File;
 import java.util.HashMap;

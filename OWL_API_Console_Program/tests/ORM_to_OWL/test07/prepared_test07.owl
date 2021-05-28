@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.semanticweb.org/kate/ontologies/2021/4/test4_new"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://www.semanticweb.org/kate/ontologies/2021/4/test4_new">
+    <Prefix name="" IRI="http://www.semanticweb.org/kate/ontologies/2021/4/test4_new"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Declaration>
+        <Class IRI="#Book"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Editor"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Language"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Person"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#PublishedDate"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#not__Editor"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#authored.Person.Book"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#has.Book.PublishedDate"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#inverse__has.Book.PublishedDate"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#inverse__is_assigned.Book.Editor"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#inverse__is_assigned_for_review_by.Book.Person"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#inverse__is_written_in.Book.Language"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#is_assigned.Book.Editor"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#is_assigned_for_review_by.Book.Person"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#is_authored_by.Book.Person"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#is_written_in.Book.Language"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#has.Book.BookTitle"/>
+    </Declaration>
+    <EquivalentClasses>
+        <Class IRI="#Person"/>
+        <ObjectUnionOf>
+            <Class IRI="#Editor"/>
+            <Class IRI="#not__Editor"/>
+        </ObjectUnionOf>
+    </EquivalentClasses>
+    <EquivalentClasses>
+        <Class abbreviatedIRI="owl:Thing"/>
+        <ObjectUnionOf>
+            <Class IRI="#Book"/>
+            <Class IRI="#Language"/>
+            <Class IRI="#Person"/>
+            <Class IRI="#PublishedDate"/>
+        </ObjectUnionOf>
+    </EquivalentClasses>
+    <SubClassOf>
+        <Class IRI="#Editor"/>
+        <Class IRI="#Person"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#not__Editor"/>
+        <Class IRI="#Person"/>
+    </SubClassOf>
+    <DisjointClasses>
+        <Class IRI="#Book"/>
+        <Class IRI="#Language"/>
+        <Class IRI="#Person"/>
+        <Class IRI="#PublishedDate"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#Editor"/>
+        <Class IRI="#not__Editor"/>
+    </DisjointClasses>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#authored.Person.Book"/>
+        <ObjectProperty IRI="#is_authored_by.Book.Person"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#has.Book.PublishedDate"/>
+        <ObjectProperty IRI="#inverse__has.Book.PublishedDate"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#inverse__is_assigned.Book.Editor"/>
+        <ObjectProperty IRI="#is_assigned.Book.Editor"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#inverse__is_assigned_for_review_by.Book.Person"/>
+        <ObjectProperty IRI="#is_assigned_for_review_by.Book.Person"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#inverse__is_written_in.Book.Language"/>
+        <ObjectProperty IRI="#is_written_in.Book.Language"/>
+    </InverseObjectProperties>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#authored.Person.Book"/>
+        <Class IRI="#Person"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#has.Book.PublishedDate"/>
+        <Class IRI="#Book"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#inverse__has.Book.PublishedDate"/>
+        <Class IRI="#PublishedDate"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#inverse__is_assigned.Book.Editor"/>
+        <Class IRI="#Editor"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#inverse__is_assigned_for_review_by.Book.Person"/>
+        <Class IRI="#Person"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#inverse__is_written_in.Book.Language"/>
+        <Class IRI="#Language"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#is_assigned.Book.Editor"/>
+        <Class IRI="#Book"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#is_assigned_for_review_by.Book.Person"/>
+        <Class IRI="#Book"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#is_authored_by.Book.Person"/>
+        <Class IRI="#Book"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#is_written_in.Book.Language"/>
+        <Class IRI="#Book"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#authored.Person.Book"/>
+        <Class IRI="#Book"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#has.Book.PublishedDate"/>
+        <Class IRI="#PublishedDate"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#inverse__has.Book.PublishedDate"/>
+        <Class IRI="#Book"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#inverse__is_assigned.Book.Editor"/>
+        <Class IRI="#Book"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#inverse__is_assigned_for_review_by.Book.Person"/>
+        <Class IRI="#Book"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#inverse__is_written_in.Book.Language"/>
+        <Class IRI="#Book"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#is_assigned.Book.Editor"/>
+        <Class IRI="#Editor"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#is_assigned_for_review_by.Book.Person"/>
+        <Class IRI="#Person"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#is_authored_by.Book.Person"/>
+        <Class IRI="#Person"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#is_written_in.Book.Language"/>
+        <Class IRI="#Language"/>
+    </ObjectPropertyRange>
+    <DataPropertyDomain>
+        <DataProperty IRI="#has.Book.BookTitle"/>
+        <Class IRI="#Book"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty IRI="#has.Book.BookTitle"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+

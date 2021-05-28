@@ -8,12 +8,7 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.OWLXMLDocumentFormat;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.OWLEntityRenamer;
-import org.vstu.nodelinkdiagram.*;
-import org.vstu.nodelinkdiagram.statuses.CommitStatus;
-import org.vstu.orm2diagram.model.ORM_DiagramFactory;
-import org.vstu.orm2diagram.model.ORM_EntityType;
-import org.vstu.orm2diagram.model.ORM_Subtyping;
-import org.vstu.orm2diagram.model.ORM_ValueType;
+
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,9 +19,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertTrue;
-
-class Test_DiagramClient implements DiagramClient {
-}
 
 public class TestingClass extends TestBase {
 
@@ -104,61 +96,6 @@ public class TestingClass extends TestBase {
         return TEST_DIR + testName + "/prepared_" + testName + ".owl";
     }
 
-    protected MainDiagramModel mainModel;
-    protected ClientDiagramModel sourceClientModel, myModel;
+    protected ORMModel model;
 
-//    @BeforeEach
-//    public void beforeTest() throws Exception {
-//        mainModel = new MainDiagramModel(new ORM_DiagramFactory());
-//        clientModel = mainModel.registerClient(new Test_DiagramClient());
-//    }
-
-    protected class ElementsPresenter implements ClientDiagramModelListener {
-
-        @Override
-        public void isUpdated(ModelUpdateEvent e) {
-            if (e.getSuccessfulUpdateStatus() == ModelUpdateEvent.SuccessfulUpdateStatus.SuccessCommit &&
-                    e.getUpdateInitiator() == ModelUpdateEvent.UpdateInitiator.AnotherOne) {
-
-                ClientDiagramModel clientModel = (ClientDiagramModel) e.getSource();
-
-                List<DiagramElement> notPresentedElements =
-                        clientModel.getElements(CommitStatus.NotPresented, DiagramElement.class).collect(Collectors.toList());
-                notPresentedElements.forEach(clientModel::markElementAsPresented);
-            }
-        }
-    }
-
-//    public void runTestX() throws Exception {
-//
-//        ORMModel model = new ORMModel();
-//
-//        ORMEntityType person = new ORMEntityType("Person");
-//        person.setUpdateStatus("Created");
-//        model.addElement(person, "EntityType");
-//
-//        ORMEntityType male = new ORMEntityType("Male");
-//        male.setUpdateStatus("Created");
-//        model.addElement(male, "EntityType");
-//
-//        ORMEntityType female = new ORMEntityType("Female");
-//        female.setUpdateStatus("Created");
-//        model.addElement(female, "EntityType");
-//
-//        try {
-//            ORM_OWL_Mapper.convertORMtoOWL(model, "");
-//        } catch (Exception e) {
-//
-//        }
-//
-//        compareOntologies("ORM_test2_expect.owl", "result.owl");
-//
-////            try {
-////                compareOntologies("ORM_test2_expect.owl", "result.owl");
-////                return true;
-////            } catch (Exception e) {
-////                e.printStackTrace();
-////                return false;
-////            }
-//    }
 }
