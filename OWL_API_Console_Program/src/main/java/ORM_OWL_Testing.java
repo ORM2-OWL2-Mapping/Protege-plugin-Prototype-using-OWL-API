@@ -55,10 +55,29 @@ public class ORM_OWL_Testing extends TestingClass {
         has_budget.setUpdateStatus("Created");
         model.addElement(has_budget, "BinaryRole");
 
-        OWLOntology ontology = ORM_OWL_Mapper.convertORMtoOWL(model, "");
+
+        setLogPrintStream(testName);
+        OWLOntology ontology = null;
+        try {
+            ontology = ORM_OWL_Mapper.convertORMtoOWL(model, "");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new Exception();
+        }
+
         saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
 
-        compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
+        try {
+            compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
+            System.out.println("-----------------------");
+            System.out.println(testName + " пройден успешно");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println("-----------------------");
+            System.out.println(testName + " провален");
+            throw new Exception();
+        }
+
     }
 
     @Test
@@ -123,10 +142,27 @@ public class ORM_OWL_Testing extends TestingClass {
         has_budget.setLastState(has_committee_budget);
         model.addElement(has_budget, "BinaryRole");
 
-        OWLOntology ontology = ORM_OWL_Mapper.convertORMtoOWL(model, makePreparedOntologyFilename(testName));
+        setLogPrintStream(testName);
+        OWLOntology ontology = null;
+        try {
+            ontology = ORM_OWL_Mapper.convertORMtoOWL(model, makePreparedOntologyFilename(testName));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new Exception();
+        }
+
         saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
 
-        compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
+        try {
+            compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
+            System.out.println("-----------------------");
+            System.out.println(testName + " пройден успешно");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println("-----------------------");
+            System.out.println(testName + " провален");
+            throw new Exception();
+        }
     }
 
     @Test

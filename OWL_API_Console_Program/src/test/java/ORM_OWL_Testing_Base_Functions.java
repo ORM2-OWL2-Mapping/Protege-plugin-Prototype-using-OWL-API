@@ -17,7 +17,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
-public class ORM_OWL_Testing extends TestBase {
+public class ORM_OWL_Testing_Base_Functions extends TestBase {
 
     private ORMModel model;
     private String TEST_DIR = System.getProperty("user.dir") + "/tests/ORM_to_OWL_test/";

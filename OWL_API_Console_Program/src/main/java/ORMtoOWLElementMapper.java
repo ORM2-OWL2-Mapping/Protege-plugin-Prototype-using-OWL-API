@@ -19,8 +19,18 @@ public abstract class ORMtoOWLElementMapper {
     protected OWLEntityRemover entityRemover;
     protected OWLEntityRenamer owlEntityRenamer;
 
+    protected ORMModel model;
 
     public ORMtoOWLElementMapper (OWLOntologyManager manager) {
+        this.manager = manager;
+        this.ontology = manager.getOntologies().iterator().next();
+        this.ontology_iri = IRI.create(ontology.getOntologyID().getOntologyIRI().get().toString() + "#");
+        this.entityRemover = new OWLEntityRemover(Collections.singleton(this.ontology));
+        this.owlEntityRenamer = new OWLEntityRenamer(this.manager, this.manager.getOntologies());
+    }
+
+    public ORMtoOWLElementMapper (OWLOntologyManager manager, ORMModel model) {
+        this.model = model;
         this.manager = manager;
         this.ontology = manager.getOntologies().iterator().next();
         this.ontology_iri = IRI.create(ontology.getOntologyID().getOntologyIRI().get().toString() + "#");
@@ -232,6 +242,16 @@ public abstract class ORMtoOWLElementMapper {
         }
     }
 
+    protected Set<OWLClass> getOWLClassesWhichEntityTypes() {
+        Set<OWLClass> owlClassesWhichEntityTypes = new HashSet<>();
+        for (ORMElement entityType : model.getElements("EntityType")) {
+            OWLClass owlClass = df.getOWLClass(IRI.create(ontology_iri + entityType.getName()));
+            owlClassesWhichEntityTypes.add(owlClass);
+        }
+        return owlClassesWhichEntityTypes;
+    }
+
+
 
 
     public abstract void addElement(ORMElement element);
@@ -248,6 +268,10 @@ class ORMtoOWLEntityTypeMapper extends ORMtoOWLElementMapper {
 
     public ORMtoOWLEntityTypeMapper(OWLOntologyManager manager) {
         super(manager);
+    }
+
+    public ORMtoOWLEntityTypeMapper(OWLOntologyManager manager, ORMModel model) {
+        super(manager, model);
     }
 
     private void renameAllRelatedElements(String className, String newClassName) {
@@ -331,6 +355,56 @@ class ORMtoOWLEntityTypeMapper extends ORMtoOWLElementMapper {
 
         createCloseWorld();
     }
+
+    public Set<ORMEntityType> getElementsFromOntology() {
+
+        Set<OWLClass> owlClassesWhichEntityTypes = new HashSet<>();
+        Set<OWLClass> mainClasses = new HashSet<>();
+
+        // Ищем утверждение EquivalentClasses у owl:Thing
+        for (OWLAxiom axiom : ontology.getAxioms(df.getOWLThing())) {
+            if (axiom.getAxiomType() == AxiomType.EQUIVALENT_CLASSES) {
+                mainClasses = axiom.getClassesInSignature();
+                mainClasses.remove(df.getOWLThing());
+                break;
+            }
+        }
+
+        // Если в утверждении EquivalentClasses только один класс, то добавляем только его
+        if (mainClasses.size() == 1) {
+            owlClassesWhichEntityTypes.add(mainClasses.iterator().next());
+        }
+        // Если больше 1, проверяем, имеет ли текущий класс Disjoint с другими mainClasses
+        else if (mainClasses.size() > 1) {
+            OWLDisjointClassesAxiom disjointClassesAxiom = df.getOWLDisjointClassesAxiom(mainClasses);
+            for (OWLClass mainClass : mainClasses) {
+                boolean isEntityType = ontology.getDisjointClassesAxioms(mainClass).contains(disjointClassesAxiom);
+                if (isEntityType) {
+                    owlClassesWhichEntityTypes.add(mainClass);
+                }
+            }
+        }
+
+        mainClasses = getOWLThingSubClasses();
+
+        // Если в онтологии есть не корневые классы и их название не начинается с "not__" и "union__", то добавляем
+        for (OWLClass owlClass : ontology.getClassesInSignature()) {
+            if (owlClass.equals(df.getOWLThing()) || mainClasses.contains(owlClass)) { continue; }
+            String className = owlClass.getIRI().getShortForm();
+            if (!owlClassesWhichEntityTypes.contains(owlClass) && !className.startsWith("not__") && !className.startsWith("union__")) {
+                owlClassesWhichEntityTypes.add(owlClass);
+            }
+        }
+
+        // Создаём EntityType на основе найденных классов
+        Set<ORMEntityType> entityTypes = new HashSet<>();
+        for (OWLClass owlClass : owlClassesWhichEntityTypes) {
+            String className = owlClass.getIRI().getShortForm();
+            entityTypes.add(new ORMEntityType(className));
+        }
+
+        return entityTypes;
+    }
 }
 
 class ORMtoOWLSubtypingMapper extends ORMtoOWLElementMapper {
@@ -338,6 +412,10 @@ class ORMtoOWLSubtypingMapper extends ORMtoOWLElementMapper {
 
     public ORMtoOWLSubtypingMapper(OWLOntologyManager manager) {
         super(manager);
+    }
+
+    public ORMtoOWLSubtypingMapper(OWLOntologyManager manager, ORMModel model) {
+        super(manager, model);
     }
 
     @Override
@@ -398,12 +476,90 @@ class ORMtoOWLSubtypingMapper extends ORMtoOWLElementMapper {
         updateClassSubclasses(parent_owl_class);
         createCloseWorld();
     }
+
+    public Set<ORMSubtyping> getElementsFromOntology() {
+
+        Set<ORMSubtyping> subtypings = new HashSet<>();
+        Set<OWLClass> owlClassesWhichEntityTypes = getOWLClassesWhichEntityTypes();
+
+        for (OWLClass owlClass : owlClassesWhichEntityTypes) {
+
+            Set<OWLClass> subclasses = getSubClasses(owlClass);
+
+            if (subclasses.size() != 2) { continue; }
+
+            OWLDisjointClassesAxiom disjointAxiom = df.getOWLDisjointClassesAxiom(subclasses);
+            boolean disjointIsFind = ontology.getDisjointClassesAxioms(subclasses.stream().findFirst().get()).contains(disjointAxiom);
+
+            OWLEquivalentClassesAxiom equivalentAxiom = df.getOWLEquivalentClassesAxiom(owlClass, df.getOWLObjectUnionOf(subclasses));
+            boolean equivalentIsFind = ontology.getEquivalentClassesAxioms(owlClass).contains(equivalentAxiom);
+
+            if (!(equivalentIsFind && disjointIsFind)) { continue; }
+
+            boolean not__isFind = false;
+            boolean oneChild__isFind = true;
+            boolean union__isFind = false;
+
+            Set<OWLClass> unionSubclasses = new HashSet<>();
+
+            for (OWLClass subclass : subclasses) {
+                if (subclass.getIRI().getShortForm().startsWith("not__")) {
+                    not__isFind = true;
+                }
+                else if (subclass.getIRI().getShortForm().startsWith("union__")) {
+                    oneChild__isFind = false;
+                    unionSubclasses = getSubClasses(subclass);
+                    equivalentAxiom = df.getOWLEquivalentClassesAxiom(subclass, df.getOWLObjectUnionOf(unionSubclasses));
+                    boolean unionEquivalentIsFind = ontology.getEquivalentClassesAxioms(subclass).contains(equivalentAxiom);
+                    disjointAxiom = df.getOWLDisjointClassesAxiom(unionSubclasses);
+                    boolean unionDisjointIsFind = ontology.getDisjointUnionAxioms(unionSubclasses.stream().findFirst().get()).contains(disjointAxiom);
+                    if (unionEquivalentIsFind && !unionDisjointIsFind) {
+                        union__isFind = true;
+                    }
+                } else {
+                    unionSubclasses.add(subclass);
+                }
+            }
+
+            // Если класс-родитель имеет два подкласса: not__ и (union__ или единственный класс), то добавляем Subtyping
+            if (not__isFind && (oneChild__isFind || union__isFind)) {
+                ORMEntityType targetSubtyping = new ORMEntityType(owlClass.getIRI().getShortForm());
+                try {
+                    targetSubtyping = (ORMEntityType)model.getElements("EntityType")
+                            .stream().filter(
+                                    e -> e.getName().equals(owlClass.getIRI().getShortForm())
+                            ).findFirst().get();
+                } catch (Exception e) {
+
+                }
+                for (OWLClass unionSubclass : unionSubclasses) {
+                    ORMEntityType sourceSubtyping = new ORMEntityType(unionSubclass.getIRI().getShortForm());
+                    try {
+                        sourceSubtyping = (ORMEntityType)model.getElements("EntityType")
+                                .stream().filter(
+                                        e -> e.getName().equals(unionSubclass.getIRI().getShortForm())
+                                ).findFirst().get();
+                    } catch (Exception e) {
+
+                    }
+                    ORMSubtyping subtyping = new ORMSubtyping(sourceSubtyping, targetSubtyping);
+                    subtypings.add(subtyping);
+                }
+            }
+        }
+
+        return subtypings;
+    }
 }
 
 class ORMtoOWLValueTypeMapper extends ORMtoOWLElementMapper {
 
     public ORMtoOWLValueTypeMapper(OWLOntologyManager manager) {
         super(manager);
+    }
+
+    public ORMtoOWLValueTypeMapper(OWLOntologyManager manager, ORMModel model) {
+        super(manager, model);
     }
 
     @Override
@@ -481,12 +637,69 @@ class ORMtoOWLValueTypeMapper extends ORMtoOWLElementMapper {
         OWLDataProperty dataProp = df.getOWLDataProperty(IRI.create(ontology_iri + valueTypeName));
         removeOWLEntity(dataProp);
     }
+
+    public Set<ORMValueType> getElementsFromOntology() {
+
+        Set<ORMValueType> valueTypes = new HashSet<>();
+        Set<OWLClass> owlClassesWhichEntityTypes = getOWLClassesWhichEntityTypes();
+
+        OWLDatatype stringDatatype = df.getOWLDatatype(OWL2Datatype.XSD_STRING.getIRI());
+
+        for (OWLDataProperty dataProp : ontology.getDataPropertiesInSignature()) {
+            OWLClass domainClass = null;
+            boolean domainIsEntityType = false;
+            boolean rangeIsString = false;
+            boolean nameIsCorrect = false;
+
+            for (OWLAxiom axiom : ontology.getAxioms(dataProp)) {
+                if (axiom.getAxiomType() == AxiomType.DATA_PROPERTY_DOMAIN) {
+                    domainClass = axiom.getClassesInSignature().stream().findFirst().get();
+                    if (owlClassesWhichEntityTypes.contains(domainClass)) {
+                        domainIsEntityType = true;
+                    }
+                } else if (axiom.getAxiomType() == AxiomType.DATA_PROPERTY_RANGE) {
+                    if (axiom.getDatatypesInSignature().size() == 1
+                            && axiom.getDatatypesInSignature().contains(stringDatatype)) {
+                        rangeIsString = true;
+                    }
+                }
+            }
+
+            String dataPropName = dataProp.getIRI().getShortForm();
+            // splitDataPropName: 0 - название связи, 1 - название OWLClass, 2 - название ValueType
+            String[] splitDataPropName = dataPropName.split("\\.");
+            if (domainIsEntityType && splitDataPropName[1].equals(domainClass.getIRI().getShortForm())) {
+                nameIsCorrect = true;
+            }
+
+            if (domainIsEntityType && rangeIsString && nameIsCorrect) {
+                String domainClassName = domainClass.getIRI().getShortForm();
+                ORMEntityType sourceValueType = new ORMEntityType(domainClassName);
+                try {
+                    sourceValueType = (ORMEntityType)model.getElements("EntityType")
+                            .stream().filter(
+                                    e -> e.getName().equals(domainClassName)
+                            ).findFirst().get();
+                } catch (Exception e) {
+
+                }
+                ORMValueType valueType = new ORMValueType(splitDataPropName[0], splitDataPropName[2], sourceValueType);
+                valueTypes.add(valueType);
+            }
+        }
+
+        return valueTypes;
+    }
 }
 
 class ORMtoOWLUnaryRoleMapper extends ORMtoOWLElementMapper {
 
     public ORMtoOWLUnaryRoleMapper(OWLOntologyManager manager) {
         super(manager);
+    }
+
+    public ORMtoOWLUnaryRoleMapper(OWLOntologyManager manager, ORMModel model) {
+        super(manager, model);
     }
 
     @Override
@@ -564,12 +777,70 @@ class ORMtoOWLUnaryRoleMapper extends ORMtoOWLElementMapper {
         OWLDataProperty dataProp = df.getOWLDataProperty(IRI.create(ontology_iri + unaryRoleName));
         removeOWLEntity(dataProp);
     }
+
+    public Set<ORMUnaryRole> getElementsFromOntology() {
+
+        Set<ORMUnaryRole> unaryRoles = new HashSet<>();
+
+        Set<OWLClass> owlClassesWhichEntityTypes = getOWLClassesWhichEntityTypes();
+
+        OWLDatatype booleanDatatype = df.getOWLDatatype(OWL2Datatype.XSD_BOOLEAN.getIRI());
+
+        for (OWLDataProperty dataProp : ontology.getDataPropertiesInSignature()) {
+            OWLClass domainClass = null;
+            boolean domainIsEntityType = false;
+            boolean rangeIsBoolean = false;
+            boolean nameIsCorrect = false;
+
+            for (OWLAxiom axiom : ontology.getAxioms(dataProp)) {
+                if (axiom.getAxiomType() == AxiomType.DATA_PROPERTY_DOMAIN) {
+                    domainClass = axiom.getClassesInSignature().stream().findFirst().get();
+                    if (owlClassesWhichEntityTypes.contains(domainClass)) {
+                        domainIsEntityType = true;
+                    }
+                } else if (axiom.getAxiomType() == AxiomType.DATA_PROPERTY_RANGE) {
+                    if (axiom.getDatatypesInSignature().size() == 1
+                            && axiom.getDatatypesInSignature().contains(booleanDatatype)) {
+                        rangeIsBoolean = true;
+                    }
+                }
+            }
+
+            String dataPropName = dataProp.getIRI().getShortForm();
+            // splitDataPropName: 0 - название связи, 1 - название OWLClass
+            String[] splitDataPropName = dataPropName.split("\\.");
+            if (domainIsEntityType && splitDataPropName[1].equals(domainClass.getIRI().getShortForm())) {
+                nameIsCorrect = true;
+            }
+
+            if (domainIsEntityType && rangeIsBoolean && nameIsCorrect) {
+                String domainClassName = domainClass.getIRI().getShortForm();
+                ORMEntityType sourceUnaryRole = new ORMEntityType(domainClassName);
+                try {
+                    sourceUnaryRole = (ORMEntityType)model.getElements("EntityType")
+                            .stream().filter(
+                                    e -> e.getName().equals(domainClassName)
+                            ).findFirst().get();
+                } catch (Exception e) {
+
+                }
+                ORMUnaryRole unaryRole = new ORMUnaryRole(splitDataPropName[0], sourceUnaryRole);
+                unaryRoles.add(unaryRole);
+            }
+        }
+
+        return unaryRoles;
+    }
 }
 
 class ORMtoOWLBinaryRoleMapper extends ORMtoOWLElementMapper {
 
     public ORMtoOWLBinaryRoleMapper(OWLOntologyManager manager) {
         super(manager);
+    }
+
+    public ORMtoOWLBinaryRoleMapper(OWLOntologyManager manager, ORMModel model) {
+        super(manager, model);
     }
 
     @Override
@@ -706,5 +977,124 @@ class ORMtoOWLBinaryRoleMapper extends ORMtoOWLElementMapper {
         removeOWLEntity(objProp);
         OWLObjectProperty inverse_objProp = df.getOWLObjectProperty(IRI.create(ontology_iri + inverseBinaryRoleName));
         removeOWLEntity(inverse_objProp);
+    }
+
+    public Set<ORMBinaryRole> getElementsFromOntology() {
+
+        Set<ORMBinaryRole> binaryRoles = new HashSet<>();
+
+        Set<OWLClass> owlClassesWhichEntityTypes = getOWLClassesWhichEntityTypes();
+        Set<OWLObjectProperty>findObjProps = new HashSet<>();
+
+        for (OWLObjectProperty objProp : ontology.getObjectPropertiesInSignature()) {
+
+            if (findObjProps.contains(objProp)) { continue; }
+
+            OWLClass domainClass = null;
+            OWLClass rangeClass = null;
+            OWLObjectProperty inverseObjProp = null;
+            boolean domainIsEntityType = false;
+            boolean rangeIsEntityType = false;
+            boolean inverseObjPropIsFind = false;
+            boolean nameIsCorrect = false;
+
+            for (OWLAxiom axiom : ontology.getAxioms(objProp)) {
+                if (axiom.getAxiomType() == AxiomType.OBJECT_PROPERTY_DOMAIN) {
+                    domainClass = axiom.getClassesInSignature().stream().findFirst().get();
+                    if (owlClassesWhichEntityTypes.contains(domainClass)) {
+                        domainIsEntityType = true;
+                    }
+                } else if (axiom.getAxiomType() == AxiomType.OBJECT_PROPERTY_RANGE) {
+                    rangeClass = axiom.getClassesInSignature().stream().findFirst().get();
+                    if (owlClassesWhichEntityTypes.contains(rangeClass)) {
+                        rangeIsEntityType = true;
+                    }
+                } else if (axiom.getAxiomType() == AxiomType.INVERSE_OBJECT_PROPERTIES) {
+                    inverseObjProp = axiom.getObjectPropertiesInSignature()
+                            .stream().filter(e -> !e.equals(objProp)).findFirst().get();
+                    inverseObjPropIsFind = true;
+                }
+            }
+
+            String objPropName = objProp.getIRI().getShortForm();
+            // splitDataPropName: 0 - название связи, 1 - название domainOWLClass, 2 - название rangeOWLClass
+            String[] splitObjPropName = objPropName.split("\\.");
+            if (splitObjPropName[0].startsWith("inverse__")) {
+                String tmp = splitObjPropName[1];
+                splitObjPropName[1] = splitObjPropName[2];
+                splitObjPropName[2] = tmp;
+            }
+            if (domainIsEntityType && rangeIsEntityType
+                    && splitObjPropName[1].equals(domainClass.getIRI().getShortForm())
+                    && splitObjPropName[2].equals(rangeClass.getIRI().getShortForm())) {
+                nameIsCorrect = true;
+            }
+
+            if (!(domainIsEntityType && rangeIsEntityType && inverseObjPropIsFind && nameIsCorrect)) { continue; }
+
+            boolean inverseDomainIsEntityType = false;
+            boolean inverseRangeIsEntityType = false;
+            boolean inverseNameIsCorrect = false;
+            OWLClass inverseDomainClass = null;
+            OWLClass inverseRangeClass = null;
+            for (OWLAxiom axiom : ontology.getAxioms(inverseObjProp)) {
+                if (axiom.getAxiomType() == AxiomType.OBJECT_PROPERTY_DOMAIN) {
+                    inverseDomainClass = axiom.getClassesInSignature().stream().findFirst().get();
+                    if (inverseDomainClass.equals(rangeClass)) {
+                        inverseDomainIsEntityType = true;
+                    }
+                } else if (axiom.getAxiomType() == AxiomType.OBJECT_PROPERTY_RANGE) {
+                    inverseRangeClass = axiom.getClassesInSignature().stream().findFirst().get();
+                    if (inverseRangeClass.equals(domainClass)) {
+                        inverseRangeIsEntityType = true;
+                    }
+                }
+            }
+
+            String inverseObjPropName = inverseObjProp.getIRI().getShortForm();
+            // splitDataPropName: 0 - название связи, 1 - название domainOWLClass, 2 - название rangeOWLClass
+            String[] splitInverseObjPropName = inverseObjPropName.split("\\.");
+            if (splitInverseObjPropName[1].equals(rangeClass.getIRI().getShortForm())
+                    && splitInverseObjPropName[2].equals(domainClass.getIRI().getShortForm())) {
+                inverseNameIsCorrect = true;
+            }
+
+            if (inverseDomainIsEntityType && inverseRangeIsEntityType && inverseNameIsCorrect) {
+
+                String domainClassName = domainClass.getIRI().getShortForm();
+                ORMEntityType sourceBinaryRole = new ORMEntityType(domainClassName);
+                try {
+                    sourceBinaryRole = (ORMEntityType)model.getElements("EntityType")
+                            .stream().filter(
+                                    e -> e.getName().equals(domainClassName)
+                            ).findFirst().get();
+                } catch (Exception ignored) {
+
+                }
+                String rangeClassName = rangeClass.getIRI().getShortForm();
+                ORMEntityType targetBinaryRole = new ORMEntityType(rangeClassName);
+                try {
+                    targetBinaryRole = (ORMEntityType)model.getElements("EntityType")
+                            .stream().filter(
+                                    e -> e.getName().equals(rangeClassName)
+                            ).findFirst().get();
+                } catch (Exception ignored) {
+
+                }
+//                ORMBinaryRole binaryRole = new ORMBinaryRole(splitObjPropName[0], sourceBinaryRole, targetBinaryRole);
+//                if (!splitInverseObjPropName[0].startsWith("inverse__")) {
+//                    binaryRole = new ORMBinaryRole(splitObjPropName[0], sourceBinaryRole, targetBinaryRole, splitInverseObjPropName[0]);
+//                }
+
+                findObjProps.add(objProp);
+                findObjProps.add(inverseObjProp);
+                ORMBinaryRole binaryRole = new ORMBinaryRole(splitObjPropName[0], sourceBinaryRole, targetBinaryRole, splitInverseObjPropName[0]);
+                binaryRoles.add(binaryRole);
+                ORMBinaryRole inverseBinaryRole = new ORMBinaryRole(splitInverseObjPropName[0], targetBinaryRole, sourceBinaryRole, splitObjPropName[0]);
+                binaryRoles.add(inverseBinaryRole);
+            }
+        }
+
+        return binaryRoles;
     }
 }

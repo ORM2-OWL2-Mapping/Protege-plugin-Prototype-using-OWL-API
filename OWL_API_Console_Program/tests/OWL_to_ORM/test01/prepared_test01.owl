@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.semanticweb.org/kate/ontologies/2021/4/test1"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://www.semanticweb.org/kate/ontologies/2021/4/test1">
+    <Prefix name="" IRI="http://www.semanticweb.org/kate/ontologies/2021/4/test1"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Declaration>
+        <Class IRI="#Budget"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Committee"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Person"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#chairs.Person.Committee"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#has.Committee.Budget"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#includes.Committee.Person"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#inverse__has.Committee.Budget"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#is_a_member_of.Person.Committee"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#is_chaired_by.Committee.Person"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#has.Person.PersonName"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#smokes.Person"/>
+    </Declaration>
+    <EquivalentClasses>
+        <Class abbreviatedIRI="owl:Thing"/>
+        <ObjectUnionOf>
+            <Class IRI="#Budget"/>
+            <Class IRI="#Committee"/>
+            <Class IRI="#Person"/>
+        </ObjectUnionOf>
+    </EquivalentClasses>
+    <DisjointClasses>
+        <Class IRI="#Budget"/>
+        <Class IRI="#Committee"/>
+        <Class IRI="#Person"/>
+    </DisjointClasses>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#chairs.Person.Committee"/>
+        <ObjectProperty IRI="#is_chaired_by.Committee.Person"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#has.Committee.Budget"/>
+        <ObjectProperty IRI="#inverse__has.Committee.Budget"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#includes.Committee.Person"/>
+        <ObjectProperty IRI="#is_a_member_of.Person.Committee"/>
+    </InverseObjectProperties>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#chairs.Person.Committee"/>
+        <Class IRI="#Person"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#has.Committee.Budget"/>
+        <Class IRI="#Committee"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#includes.Committee.Person"/>
+        <Class IRI="#Committee"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#inverse__has.Committee.Budget"/>
+        <Class IRI="#Budget"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#is_a_member_of.Person.Committee"/>
+        <Class IRI="#Person"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#is_chaired_by.Committee.Person"/>
+        <Class IRI="#Committee"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#chairs.Person.Committee"/>
+        <Class IRI="#Committee"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#has.Committee.Budget"/>
+        <Class IRI="#Budget"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#includes.Committee.Person"/>
+        <Class IRI="#Person"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#inverse__has.Committee.Budget"/>
+        <Class IRI="#Committee"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#is_a_member_of.Person.Committee"/>
+        <Class IRI="#Committee"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#is_chaired_by.Committee.Person"/>
+        <Class IRI="#Person"/>
+    </ObjectPropertyRange>
+    <DataPropertyDomain>
+        <DataProperty IRI="#has.Person.PersonName"/>
+        <Class IRI="#Person"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="#smokes.Person"/>
+        <Class IRI="#Person"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty IRI="#has.Person.PersonName"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="#smokes.Person"/>
+        <Datatype abbreviatedIRI="xsd:boolean"/>
+    </DataPropertyRange>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+

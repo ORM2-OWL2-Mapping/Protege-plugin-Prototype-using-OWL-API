@@ -11,6 +11,7 @@ import org.semanticweb.owlapi.util.OWLEntityRenamer;
 
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +57,13 @@ public class TestingClass extends TestBase {
 
         OWLOntologyManager manager_1 = OWLManager.createOWLOntologyManager();
         File file = new File(TEST_DIR + ontology_file_1);
-        OWLOntology ontology_1 = manager_1.loadOntologyFromOntologyDocument(file);
+        OWLOntology ontology_1 = null;
+        try {
+            ontology_1 = manager_1.loadOntologyFromOntologyDocument(file);
+        } catch (Exception e) {
+            String[] splitPath = ontology_file_1.split("/");
+            throw new Exception("Файл " + splitPath[splitPath.length - 1] + " не найден в текущей папке");
+        }
         IRI ontology_1_iri = ontology_1.getOntologyID().getOntologyIRI().get();
 
         OWLOntologyManager manager_2 = OWLManager.createOWLOntologyManager();
@@ -72,10 +79,16 @@ public class TestingClass extends TestBase {
             ontology_2 = manager_2.createOntology(ontology_2.getAxioms(), ontology_1_iri);
         }
 
-        boolean res_1_2 = equal(ontology_1, ontology_2);
-        assertTrue(res_1_2);
-        boolean res_2_1 = equal(ontology_2, ontology_1);
-        assertTrue(res_2_1);
+        try {
+            boolean res_1_2 = equal(ontology_1, ontology_2);
+            assertTrue(res_1_2);
+            boolean res_2_1 = equal(ontology_2, ontology_1);
+            assertTrue(res_2_1);
+        } catch (AssertionError e) {
+            System.out.println(e.getMessage());
+            throw new Exception();
+        }
+
     }
 
     protected void saveOntologyInFile(OWLOntology ontology, String filename) throws Exception {
@@ -94,6 +107,20 @@ public class TestingClass extends TestBase {
 
     protected String makePreparedOntologyFilename(String testName) {
         return TEST_DIR + testName + "/prepared_" + testName + ".owl";
+    }
+
+    protected void setLogPrintStream(String testName) throws Exception {
+
+        // Создание объекта File, представляющего файл диска.
+        PrintStream o = new PrintStream(new File(TEST_DIR + testName + "/testResult_" + testName + ".txt"));
+
+        // Сохраняем текущий System.out перед присвоением нового значения
+        PrintStream console = System.out;
+
+        // Назначаем o для выходного потока
+        System.setOut(o);
+        System.out.println("Выполнение " + testName);
+        System.out.println("-----------------------");
     }
 
     protected ORMModel model;

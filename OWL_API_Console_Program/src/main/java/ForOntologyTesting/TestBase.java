@@ -16,8 +16,8 @@ import com.google.common.base.Optional;
 import org.junit.Rule;
 import org.junit.Before;
 import org.junit.BeforeClass;
-//import org.junit.jupiter.api.BeforeAll;
-//import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.Timeout;
@@ -83,11 +83,13 @@ public abstract class TestBase {
     protected OWLOntologyManager m1;
 
     @BeforeClass
+    @BeforeAll
     public static void setupManagers() {
         df = OWLManager.getOWLDataFactory();
     }
 
     @Before
+    @BeforeEach
     public void setupManagersClean() {
         m = setupManager();
         m1 = setupManager();
@@ -175,9 +177,9 @@ public abstract class TestBase {
                 if (!b.contains(ax)) {
                     if (!isIgnorableAxiom(ax, false)) {
                         leftOnly.add(ax);
-                        sb.append("Rem axiom: ");
+                        sb.append("Отсутствует утверждение: ");
                         sb.append(ax);
-                        sb.append('\n');
+                        sb.append("\r\n");
                         counter++;
                     }
                 }
@@ -186,9 +188,9 @@ public abstract class TestBase {
                 if (!a.contains(ax)) {
                     if (!isIgnorableAxiom(ax, true)) {
                         rightOnly.add(ax);
-                        sb.append("Add axiom: ");
+                        sb.append("Добавленное утверждение: ");
                         sb.append(ax);
-                        sb.append('\n');
+                        sb.append("\r\n");
                         counter++;
                     }
                 }
@@ -199,7 +201,8 @@ public abstract class TestBase {
                 boolean fixed = !verifyErrorIsDueToBlankNodesId(leftOnly, rightOnly);
                 if (fixed) {
                     String x = getClass().getSimpleName()
-                            + " roundTripOntology() Failing to match axioms: \n" + sb;
+                            //+ " roundTripOntology() Failing to match axioms: \n" + sb;
+                            + " Различия онтологий: \r\n" + sb;
                     // System.out.println(x);
                     fail(x);
                     return false;

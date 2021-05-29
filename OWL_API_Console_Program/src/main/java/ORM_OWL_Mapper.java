@@ -18,11 +18,16 @@ public class ORM_OWL_Mapper {
 
         OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
 
-        if (!pathToOntology.isEmpty()) {
-            File file = new File(pathToOntology);
-            manager.loadOntologyFromOntologyDocument(file);
-        } else {
-            manager.createOntology(DEFAULT_IRI);
+        try {
+            if (!pathToOntology.isEmpty()) {
+                File file = new File(pathToOntology);
+                manager.loadOntologyFromOntologyDocument(file);
+            } else {
+                manager.createOntology(DEFAULT_IRI);
+            }
+        } catch (Exception e) {
+            String[] splitPath = pathToOntology.split("/");
+            throw new Exception("Файл " + splitPath[splitPath.length - 1] + " не найден в текущей папке");
         }
 
 
@@ -124,5 +129,53 @@ public class ORM_OWL_Mapper {
         return ontology;
     }
 
+    public static ORMModel convertOWLtoORM(String pathToOntology) throws Exception {
 
+        OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
+
+        try {
+            if (!pathToOntology.isEmpty()) {
+                File file = new File(pathToOntology);
+                manager.loadOntologyFromOntologyDocument(file);
+            }
+        } catch (Exception e) {
+            String[] splitPath = pathToOntology.split("/");
+            throw new Exception("Файл " + splitPath[splitPath.length - 1] + " не найден в текущей папке");
+        }
+
+
+        ORMModel newModel = new ORMModel();
+
+        ORMtoOWLEntityTypeMapper entityTypeMapper = new ORMtoOWLEntityTypeMapper(manager, newModel);
+        for (ORMEntityType entityType : entityTypeMapper.getElementsFromOntology()) {
+            entityType.setUpdateStatus("Created");
+            newModel.addElement(entityType, "EntityType");
+        }
+
+        ORMtoOWLSubtypingMapper subtypingMapper = new ORMtoOWLSubtypingMapper(manager, newModel);
+        for (ORMSubtyping subtyping : subtypingMapper.getElementsFromOntology()) {
+            subtyping.setUpdateStatus("Created");
+            newModel.addElement(subtyping, "Subtyping");
+        }
+
+        ORMtoOWLValueTypeMapper valueTypeMapper = new ORMtoOWLValueTypeMapper(manager, newModel);
+        for (ORMValueType valueType : valueTypeMapper.getElementsFromOntology()) {
+            valueType.setUpdateStatus("Created");
+            newModel.addElement(valueType, "ValueType");
+        }
+
+        ORMtoOWLUnaryRoleMapper unaryRoleMapper = new ORMtoOWLUnaryRoleMapper(manager, newModel);
+        for (ORMUnaryRole unaryRole : unaryRoleMapper.getElementsFromOntology()) {
+            unaryRole.setUpdateStatus("Created");
+            newModel.addElement(unaryRole, "UnaryRole");
+        }
+
+        ORMtoOWLBinaryRoleMapper binaryRoleMapper = new ORMtoOWLBinaryRoleMapper(manager, newModel);
+        for (ORMBinaryRole binaryRole : binaryRoleMapper.getElementsFromOntology()) {
+            binaryRole.setUpdateStatus("Created");
+            newModel.addElement(binaryRole, "BinaryRole");
+        }
+
+        return newModel;
+    }
 }
