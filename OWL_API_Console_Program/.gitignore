@@ -7,3 +7,6 @@ out/
 /*.owl
 /src/test/java/ActualOntologies
 /src/test/java/UnusedTestClasses
+*.txt
+/tests/*.txt
+/tests/actual_*.owl

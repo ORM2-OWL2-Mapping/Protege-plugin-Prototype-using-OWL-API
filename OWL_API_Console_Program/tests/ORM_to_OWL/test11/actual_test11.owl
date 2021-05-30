@@ -1,0 +1,218 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.semanticweb.org/kate/ontologies/2021/4/test8"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://www.semanticweb.org/kate/ontologies/2021/4/test8">
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Declaration>
+        <Class IRI="#Drink"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#DrinkType"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#FattyAcidType"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Mass"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#MilkBased_Drink"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#NonAlcoholic_Drink"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#not__union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#contains.MilkBased_Drink.FattyAcidType"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#has...of_water_per_serve.NonAlcoholic_Drink.Mass"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#has...per_serve.Drink.Mass"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#inverse__contains.MilkBased_Drink.FattyAcidType"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#inverse__has...of_water_per_serve.NonAlcoholic_Drink.Mass"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#inverse__has...per_serve.Drink.Mass"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#inverse__is_of.Drink.DrinkType"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#is_of.Drink.DrinkType"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#has.Drink.WaterPercent"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#isAlcoholic.MilkBased_Drink"/>
+    </Declaration>
+    <EquivalentClasses>
+        <Class IRI="#Drink"/>
+        <ObjectUnionOf>
+            <Class IRI="#not__union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+            <Class IRI="#union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+        </ObjectUnionOf>
+    </EquivalentClasses>
+    <EquivalentClasses>
+        <Class IRI="#union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+        <ObjectUnionOf>
+            <Class IRI="#MilkBased_Drink"/>
+            <Class IRI="#NonAlcoholic_Drink"/>
+        </ObjectUnionOf>
+    </EquivalentClasses>
+    <EquivalentClasses>
+        <Class abbreviatedIRI="owl:Thing"/>
+        <ObjectUnionOf>
+            <Class IRI="#Drink"/>
+            <Class IRI="#DrinkType"/>
+            <Class IRI="#FattyAcidType"/>
+            <Class IRI="#Mass"/>
+        </ObjectUnionOf>
+    </EquivalentClasses>
+    <SubClassOf>
+        <Class IRI="#MilkBased_Drink"/>
+        <Class IRI="#union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#NonAlcoholic_Drink"/>
+        <Class IRI="#union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#not__union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+        <Class IRI="#Drink"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+        <Class IRI="#Drink"/>
+    </SubClassOf>
+    <DisjointClasses>
+        <Class IRI="#Drink"/>
+        <Class IRI="#DrinkType"/>
+        <Class IRI="#FattyAcidType"/>
+        <Class IRI="#Mass"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="#not__union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+        <Class IRI="#union__MilkBased_Drink_or_NonAlcoholic_Drink"/>
+    </DisjointClasses>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#contains.MilkBased_Drink.FattyAcidType"/>
+        <ObjectProperty IRI="#inverse__contains.MilkBased_Drink.FattyAcidType"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#has...of_water_per_serve.NonAlcoholic_Drink.Mass"/>
+        <ObjectProperty IRI="#inverse__has...of_water_per_serve.NonAlcoholic_Drink.Mass"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#has...per_serve.Drink.Mass"/>
+        <ObjectProperty IRI="#inverse__has...per_serve.Drink.Mass"/>
+    </InverseObjectProperties>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#inverse__is_of.Drink.DrinkType"/>
+        <ObjectProperty IRI="#is_of.Drink.DrinkType"/>
+    </InverseObjectProperties>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#contains.MilkBased_Drink.FattyAcidType"/>
+        <Class IRI="#MilkBased_Drink"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#has...of_water_per_serve.NonAlcoholic_Drink.Mass"/>
+        <Class IRI="#NonAlcoholic_Drink"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#has...per_serve.Drink.Mass"/>
+        <Class IRI="#Drink"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#inverse__contains.MilkBased_Drink.FattyAcidType"/>
+        <Class IRI="#FattyAcidType"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#inverse__has...of_water_per_serve.NonAlcoholic_Drink.Mass"/>
+        <Class IRI="#Mass"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#inverse__has...per_serve.Drink.Mass"/>
+        <Class IRI="#Mass"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#inverse__is_of.Drink.DrinkType"/>
+        <Class IRI="#DrinkType"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#is_of.Drink.DrinkType"/>
+        <Class IRI="#Drink"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#contains.MilkBased_Drink.FattyAcidType"/>
+        <Class IRI="#FattyAcidType"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#has...of_water_per_serve.NonAlcoholic_Drink.Mass"/>
+        <Class IRI="#Mass"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#has...per_serve.Drink.Mass"/>
+        <Class IRI="#Mass"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#inverse__contains.MilkBased_Drink.FattyAcidType"/>
+        <Class IRI="#MilkBased_Drink"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#inverse__has...of_water_per_serve.NonAlcoholic_Drink.Mass"/>
+        <Class IRI="#NonAlcoholic_Drink"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#inverse__has...per_serve.Drink.Mass"/>
+        <Class IRI="#Drink"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#inverse__is_of.Drink.DrinkType"/>
+        <Class IRI="#Drink"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#is_of.Drink.DrinkType"/>
+        <Class IRI="#DrinkType"/>
+    </ObjectPropertyRange>
+    <DataPropertyDomain>
+        <DataProperty IRI="#has.Drink.WaterPercent"/>
+        <Class IRI="#Drink"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="#isAlcoholic.MilkBased_Drink"/>
+        <Class IRI="#MilkBased_Drink"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty IRI="#has.Drink.WaterPercent"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="#isAlcoholic.MilkBased_Drink"/>
+        <Datatype abbreviatedIRI="xsd:boolean"/>
+    </DataPropertyRange>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.5.12.2019-05-06T20:49:08Z) https://github.com/owlcs/owlapi -->
+
