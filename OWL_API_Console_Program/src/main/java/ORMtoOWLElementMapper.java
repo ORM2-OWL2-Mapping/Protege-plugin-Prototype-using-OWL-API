@@ -949,7 +949,7 @@ class ORMtoOWLBinaryRoleMapper extends ORMtoOWLElementMapper {
         }
 
         String inverseEditedBinaryRoleName = "inverse__" + editedBinaryRoleName;
-        if (!existBinaryRole.getInverseRoleName().isEmpty()) {
+        if (!editedBinaryRole.getInverseRoleName().isEmpty()) {
             inverseEditedBinaryRoleName = editedBinaryRole.getInverseRoleName() + '.' + editedBinaryRole.getTarget().getName() + '.' + editedBinaryRole.getSource().getName();;
         }
 

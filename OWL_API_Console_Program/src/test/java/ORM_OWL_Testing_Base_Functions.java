@@ -1532,5 +1532,63 @@ public class ORM_OWL_Testing_Base_Functions extends TestBase {
 
             compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
         }
+
+        @Test
+        @DisplayName("46 - Добавление inverseRole к существующей BinaryRole")
+        public void test46() throws Exception {
+
+            String testName = "test46";
+
+            ORMEntityType person = new ORMEntityType("Person");
+            person.setUpdateStatus("Stable");
+            model.addElement(person, "EntityType");
+
+            ORMEntityType committee = new ORMEntityType("Committee");
+            committee.setUpdateStatus("Stable");
+            model.addElement(committee, "EntityType");
+
+            ORMBinaryRole chairs = new ORMBinaryRole("chairs", person, committee);
+            chairs.setUpdateStatus("Stable");
+            //model.addElement(chairs, "BinaryRole");
+
+            ORMBinaryRole chairs_is_chaired_by = new ORMBinaryRole("chairs", person, committee, "is_chaired_by");
+            chairs_is_chaired_by.setUpdateStatus("Modified");
+            chairs_is_chaired_by.setLastState(chairs);
+            model.addElement(chairs_is_chaired_by, "BinaryRole");
+
+            OWLOntology ontology = ORM_OWL_Mapper.convertORMtoOWL(model, makePreparedOntologyFilename(testName));
+            saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
+
+            compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
+        }
+
+        @Test
+        @DisplayName("47 - Удаление inverseRole у существующей BinaryRole")
+        public void test47() throws Exception {
+
+            String testName = "test47";
+
+            ORMEntityType person = new ORMEntityType("Person");
+            person.setUpdateStatus("Stable");
+            model.addElement(person, "EntityType");
+
+            ORMEntityType committee = new ORMEntityType("Committee");
+            committee.setUpdateStatus("Stable");
+            model.addElement(committee, "EntityType");
+
+            ORMBinaryRole chairs_is_chaired_by = new ORMBinaryRole("chairs", person, committee, "is_chaired_by");
+            chairs_is_chaired_by.setUpdateStatus("Stable");
+            //model.addElement(chairs, "BinaryRole");
+
+            ORMBinaryRole chairs = new ORMBinaryRole("chairs", person, committee);
+            chairs.setUpdateStatus("Modified");
+            chairs.setLastState(chairs_is_chaired_by);
+            model.addElement(chairs, "BinaryRole");
+
+            OWLOntology ontology = ORM_OWL_Mapper.convertORMtoOWL(model, makePreparedOntologyFilename(testName));
+            saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
+
+            compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
+        }
     }
 }
