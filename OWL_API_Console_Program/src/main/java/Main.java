@@ -2,6 +2,7 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
+import java.io.File;
 import java.io.PrintStream;
 
 
@@ -14,7 +15,12 @@ public class Main {
         Result result_ORM_OWL = JUnitCore.runClasses(ORM_OWL_Testing.class);
         Result result_OWL_ORM = JUnitCore.runClasses(OWL_ORM_Testing.class);
 
-        System.setOut(console);
+        PrintStream o = new PrintStream(new File("testingResults.txt"));
+
+        System.setOut(o);
+
+        System.out.println("Результаты тестирования");
+        System.out.println("");
 
         System.out.println("Тестирование ORM -> OWL");
         System.out.println("Количество выполненных тестов: " + result_ORM_OWL.getRunCount());
@@ -26,8 +32,6 @@ public class Main {
                 System.out.println(failure.getTestHeader());
             }
         }
-
-        System.setOut(console);
 
         System.out.println("");
         System.out.println("Тестирование OWL -> ORM");

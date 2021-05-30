@@ -799,6 +799,7 @@ class ORMtoOWLUnaryRoleMapper extends ORMtoOWLElementMapper {
                         domainIsEntityType = true;
                     }
                 } else if (axiom.getAxiomType() == AxiomType.DATA_PROPERTY_RANGE) {
+                    Set<OWLDatatype> datatypes = axiom.getDatatypesInSignature();
                     if (axiom.getDatatypesInSignature().size() == 1
                             && axiom.getDatatypesInSignature().contains(booleanDatatype)) {
                         rangeIsBoolean = true;
@@ -1017,6 +1018,7 @@ class ORMtoOWLBinaryRoleMapper extends ORMtoOWLElementMapper {
             }
 
             String objPropName = objProp.getIRI().getShortForm();
+            objPropName = objPropName.replaceAll("\\.{3}", "@");
             // splitDataPropName: 0 - название связи, 1 - название domainOWLClass, 2 - название rangeOWLClass
             String[] splitObjPropName = objPropName.split("\\.");
             if (splitObjPropName[0].startsWith("inverse__")) {
@@ -1052,6 +1054,7 @@ class ORMtoOWLBinaryRoleMapper extends ORMtoOWLElementMapper {
             }
 
             String inverseObjPropName = inverseObjProp.getIRI().getShortForm();
+            inverseObjPropName = inverseObjPropName.replaceAll("\\.{3}", "@");
             // splitDataPropName: 0 - название связи, 1 - название domainOWLClass, 2 - название rangeOWLClass
             String[] splitInverseObjPropName = inverseObjPropName.split("\\.");
             if (splitInverseObjPropName[1].equals(rangeClass.getIRI().getShortForm())
@@ -1088,6 +1091,8 @@ class ORMtoOWLBinaryRoleMapper extends ORMtoOWLElementMapper {
 
                 findObjProps.add(objProp);
                 findObjProps.add(inverseObjProp);
+                splitObjPropName[0] = splitObjPropName[0].replaceAll("@", "...");
+                splitInverseObjPropName[0] = splitInverseObjPropName[0].replaceAll("@", "...");
                 ORMBinaryRole binaryRole = new ORMBinaryRole(splitObjPropName[0], sourceBinaryRole, targetBinaryRole, splitInverseObjPropName[0]);
                 binaryRoles.add(binaryRole);
                 ORMBinaryRole inverseBinaryRole = new ORMBinaryRole(splitInverseObjPropName[0], targetBinaryRole, sourceBinaryRole, splitObjPropName[0]);

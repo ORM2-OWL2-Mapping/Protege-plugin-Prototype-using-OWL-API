@@ -177,8 +177,9 @@ public abstract class TestBase {
                 if (!b.contains(ax)) {
                     if (!isIgnorableAxiom(ax, false)) {
                         leftOnly.add(ax);
-                        sb.append("Отсутствует утверждение: ");
+                        sb.append("Отсутствует утверждение: \r\n");
                         sb.append(ax);
+                        sb.append("\r\n");
                         sb.append("\r\n");
                         counter++;
                     }
@@ -188,8 +189,9 @@ public abstract class TestBase {
                 if (!a.contains(ax)) {
                     if (!isIgnorableAxiom(ax, true)) {
                         rightOnly.add(ax);
-                        sb.append("Добавленное утверждение: ");
+                        sb.append("Лишнее утверждение: \r\n");
                         sb.append(ax);
+                        sb.append("\r\n");
                         sb.append("\r\n");
                         counter++;
                     }
@@ -200,10 +202,10 @@ public abstract class TestBase {
                 // testing here if blank node ids are the only difference
                 boolean fixed = !verifyErrorIsDueToBlankNodesId(leftOnly, rightOnly);
                 if (fixed) {
-                    String x = getClass().getSimpleName()
-                            //+ " roundTripOntology() Failing to match axioms: \n" + sb;
-                            + " Различия онтологий: \r\n" + sb;
+//                    String x = getClass().getSimpleName()
+//                            + " roundTripOntology() Failing to match axioms: \n" + sb;
                     // System.out.println(x);
+                    String x = "Различия онтологий: \r\n\r\n" + sb;
                     fail(x);
                     return false;
                 } else {
