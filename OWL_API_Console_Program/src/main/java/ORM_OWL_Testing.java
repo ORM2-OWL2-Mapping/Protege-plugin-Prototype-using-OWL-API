@@ -1,4 +1,5 @@
 import ORMModel.*;
+import org.junit.After;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 //import org.junit.jupiter.api.Test;
@@ -12,16 +13,50 @@ public class ORM_OWL_Testing extends TestingClass {
         TEST_DIR = System.getProperty("user.dir") + "/tests/ORM_to_OWL/";
     }
 
+    public String currentTestName;
+    public boolean preparedOntologyIsExist = true;
+
     @Before
     public void beforeTest() throws Exception {
         model = new ORMModel();
+        preparedOntologyIsExist = true;
+    }
+
+    @After
+    public void afterTest() throws Exception {
+
+        setLogPrintStream(currentTestName);
+        OWLOntology ontology = null;
+        String pathToOntology = preparedOntologyIsExist ? makePreparedOntologyFilename(currentTestName) : "";
+        try {
+            ontology = ORM_OWL_Mapper.convertORMtoOWL(model, pathToOntology);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new Exception();
+        }
+
+        saveOntologyInFile(ontology, makeActualOntologyFilename(currentTestName));
+
+        try {
+            compareOntologies(makeExpectedOntologyFilename(currentTestName), makeActualOntologyFilename(currentTestName));
+            System.out.println("-----------------------");
+            System.out.println(currentTestName + " пройден успешно");
+        } catch (Exception e) {
+            if (e.getMessage() != null) {
+                System.out.println(e.getMessage());
+            }
+            System.out.println("-----------------------");
+            System.out.println(currentTestName + " провален");
+            throw new Exception();
+        }
     }
 
     @Test
     //@DisplayName("01 - Добавление EntityType в пустую онтологию")
     public void test01() throws Exception {
 
-        String testName = "test01";
+        currentTestName = "test01";
+        preparedOntologyIsExist = false;
 
         ORMEntityType person = new ORMEntityType("Person");
         person.setUpdateStatus("Created");
@@ -54,36 +89,14 @@ public class ORM_OWL_Testing extends TestingClass {
         ORMBinaryRole has_budget = new ORMBinaryRole("has", committee, budget);
         has_budget.setUpdateStatus("Created");
         model.addElement(has_budget, "BinaryRole");
-
-
-        setLogPrintStream(testName);
-        OWLOntology ontology = null;
-        try {
-            ontology = ORM_OWL_Mapper.convertORMtoOWL(model, "");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new Exception();
-        }
-
-        saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
-
-        try {
-            compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
-            System.out.println("-----------------------");
-            System.out.println(testName + " пройден успешно");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println("-----------------------");
-            System.out.println(testName + " провален");
-            throw new Exception();
-        }
-
     }
 
     @Test
     public void test02() throws Exception {
 
-        String testName = "test02";
+        currentTestName = "test02";
+
+
 
         ORMEntityType person = new ORMEntityType("Person");
         person.setUpdateStatus("Stable");
@@ -141,34 +154,14 @@ public class ORM_OWL_Testing extends TestingClass {
         has_budget.setUpdateStatus("Modified");
         has_budget.setLastState(has_committee_budget);
         model.addElement(has_budget, "BinaryRole");
-
-        setLogPrintStream(testName);
-        OWLOntology ontology = null;
-        try {
-            ontology = ORM_OWL_Mapper.convertORMtoOWL(model, makePreparedOntologyFilename(testName));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new Exception();
-        }
-
-        saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
-
-        try {
-            compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
-            System.out.println("-----------------------");
-            System.out.println(testName + " пройден успешно");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println("-----------------------");
-            System.out.println(testName + " провален");
-            throw new Exception();
-        }
     }
 
     @Test
     public void test03() throws Exception {
 
-        String testName = "test03";
+        currentTestName = "test03";
+
+
 
         ORMEntityType person = new ORMEntityType("Person");
         person.setUpdateStatus("Stable");
@@ -201,17 +194,15 @@ public class ORM_OWL_Testing extends TestingClass {
         ORMBinaryRole has_budget = new ORMBinaryRole("has", person, budget);
         has_budget.setUpdateStatus("Stable");
         model.addElement(has_budget, "BinaryRole");
-
-        OWLOntology ontology = ORM_OWL_Mapper.convertORMtoOWL(model, makePreparedOntologyFilename(testName));
-        saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
-
-        compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
     }
 
     @Test
     public void test04() throws Exception {
 
-        String testName = "test04";
+        currentTestName = "test04";
+        preparedOntologyIsExist = false;
+
+
 
         ORMEntityType book = new ORMEntityType("Book");
         book.setUpdateStatus("Created");
@@ -280,17 +271,14 @@ public class ORM_OWL_Testing extends TestingClass {
         ORMBinaryRole is_assigned = new ORMBinaryRole("is_assigned", book, editor);
         is_assigned.setUpdateStatus("Created");
         model.addElement(is_assigned, "BinaryRole");
-
-        OWLOntology ontology = ORM_OWL_Mapper.convertORMtoOWL(model, "");
-        saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
-
-        compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
     }
 
     @Test
     public void test05() throws Exception {
 
-        String testName = "test05";
+        currentTestName = "test05";
+
+
 
         ORMEntityType book = new ORMEntityType("Book");
         book.setUpdateStatus("Stable");
@@ -374,17 +362,14 @@ public class ORM_OWL_Testing extends TestingClass {
         ORMBinaryRole is_assigned = new ORMBinaryRole("is_assigned", book, editor);
         is_assigned.setUpdateStatus("Stable");
         model.addElement(is_assigned, "BinaryRole");
-
-        OWLOntology ontology = ORM_OWL_Mapper.convertORMtoOWL(model, makePreparedOntologyFilename(testName));
-        saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
-
-        compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
     }
 
     @Test
     public void test06() throws Exception {
 
-        String testName = "test06";
+        currentTestName = "test06";
+
+
 
         ORMEntityType book = new ORMEntityType("Book");
         book.setUpdateStatus("Stable");
@@ -453,17 +438,14 @@ public class ORM_OWL_Testing extends TestingClass {
         ORMBinaryRole is_assigned = new ORMBinaryRole("is_assigned", book, editor);
         is_assigned.setUpdateStatus("Stable");
         model.addElement(is_assigned, "BinaryRole");
-
-        OWLOntology ontology = ORM_OWL_Mapper.convertORMtoOWL(model, makePreparedOntologyFilename(testName));
-        saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
-
-        compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
     }
 
     @Test
     public void test07() throws Exception {
 
-        String testName = "test07";
+        currentTestName = "test07";
+
+
 
         ORMEntityType book = new ORMEntityType("Book");
         book.setUpdateStatus("Stable");
@@ -520,10 +502,431 @@ public class ORM_OWL_Testing extends TestingClass {
         ORMBinaryRole is_assigned_Artist = new ORMBinaryRole("is_assigned", book, artist);
         is_assigned_Artist.setUpdateStatus("Created");
         model.addElement(is_assigned_Artist, "BinaryRole");
+    }
 
-        OWLOntology ontology = ORM_OWL_Mapper.convertORMtoOWL(model, makePreparedOntologyFilename(testName));
-        saveOntologyInFile(ontology, makeActualOntologyFilename(testName));
+    @Test
+    public void test08() throws Exception {
 
-        compareOntologies(makeExpectedOntologyFilename(testName), makeActualOntologyFilename(testName));
+        currentTestName = "test08";
+        preparedOntologyIsExist = false;
+
+
+
+        ORMEntityType food = new ORMEntityType("Food");
+        food.setUpdateStatus("Created");
+        model.addElement(food, "EntityType");
+
+        ORMEntityType serveSize = new ORMEntityType("ServeSize");
+        serveSize.setUpdateStatus("Created");
+        model.addElement(serveSize, "EntityType");
+
+        ORMBinaryRole has_standard = new ORMBinaryRole("has_standard", food, serveSize);
+        has_standard.setUpdateStatus("Created");
+        model.addElement(has_standard, "BinaryRole");
+
+        ORMEntityType form = new ORMEntityType("Form");
+        form.setUpdateStatus("Created");
+        model.addElement(form, "EntityType");
+
+        ORMBinaryRole has_Form = new ORMBinaryRole("has", food, form);
+        has_Form.setUpdateStatus("Created");
+        model.addElement(has_Form, "BinaryRole");
+
+        ORMEntityType drink = new ORMEntityType("Drink");
+        drink.setUpdateStatus("Created");
+        model.addElement(drink, "EntityType");
+
+        ORMSubtyping drink_Food = new ORMSubtyping(drink, food);
+        drink_Food.setUpdateStatus("Created");
+        model.addElement(drink_Food, "Subtyping");
+
+        ORMEntityType drinkType = new ORMEntityType("DrinkType");
+        drinkType.setUpdateStatus("Created");
+        model.addElement(drinkType, "EntityType");
+
+        ORMBinaryRole is_of = new ORMBinaryRole("is_of", drink, drinkType, "is_of");
+        is_of.setUpdateStatus("Created");
+        model.addElement(is_of, "BinaryRole");
+
+        ORMEntityType energy = new ORMEntityType("Energy");
+        energy.setUpdateStatus("Created");
+        model.addElement(energy, "EntityType");
+
+        ORMBinaryRole provides_per_serve = new ORMBinaryRole("provides...per_serve", drink, energy);
+        provides_per_serve.setUpdateStatus("Created");
+        model.addElement(provides_per_serve, "BinaryRole");
+
+        ORMEntityType alcoholicDrink = new ORMEntityType("Alcoholic_Drink");
+        alcoholicDrink.setUpdateStatus("Created");
+        model.addElement(alcoholicDrink, "EntityType");
+
+        ORMSubtyping alcoholicDrink_Drink = new ORMSubtyping(alcoholicDrink, drink);
+        alcoholicDrink_Drink.setUpdateStatus("Created");
+        model.addElement(alcoholicDrink_Drink, "Subtyping");
+
+        ORMValueType hasAlcoholPercent = new ORMValueType("has", "AlcoholPercent", alcoholicDrink);
+        hasAlcoholPercent.setUpdateStatus("Created");
+        model.addElement(hasAlcoholPercent, "ValueType");
+
+        ORMEntityType nonAlcoholicDrink = new ORMEntityType("NonAlcoholic_Drink");
+        nonAlcoholicDrink.setUpdateStatus("Created");
+        model.addElement(nonAlcoholicDrink, "EntityType");
+
+        ORMSubtyping nonAlcoholicDrink_Drink = new ORMSubtyping(nonAlcoholicDrink, drink);
+        nonAlcoholicDrink_Drink.setUpdateStatus("Created");
+        model.addElement(nonAlcoholicDrink_Drink, "Subtyping");
+
+        ORMValueType hasWaterPercent = new ORMValueType("has", "WaterPercent", nonAlcoholicDrink);
+        hasWaterPercent.setUpdateStatus("Created");
+        model.addElement(hasWaterPercent, "ValueType");
+
+        ORMEntityType milkBasedDrink = new ORMEntityType("MilkBased_Drink");
+        milkBasedDrink.setUpdateStatus("Created");
+        model.addElement(milkBasedDrink, "EntityType");
+
+        ORMSubtyping milkBasedDrink_nonAlcoholicDrink = new ORMSubtyping(milkBasedDrink, nonAlcoholicDrink);
+        milkBasedDrink_nonAlcoholicDrink.setUpdateStatus("Created");
+        model.addElement(milkBasedDrink_nonAlcoholicDrink, "Subtyping");
+
+        ORMEntityType fattyAcidType = new ORMEntityType("FattyAcidType");
+        fattyAcidType.setUpdateStatus("Created");
+        model.addElement(fattyAcidType, "EntityType");
+
+        ORMBinaryRole contains = new ORMBinaryRole("contains", milkBasedDrink, fattyAcidType);
+        contains.setUpdateStatus("Created");
+        model.addElement(contains, "BinaryRole");
+
+        ORMEntityType mass = new ORMEntityType("Mass");
+        mass.setUpdateStatus("Created");
+        model.addElement(mass, "EntityType");
+
+        ORMBinaryRole has_per_serve = new ORMBinaryRole("has...per_serve", drink, mass);
+        has_per_serve.setUpdateStatus("Created");
+        model.addElement(has_per_serve, "BinaryRole");
+
+        ORMBinaryRole has_of_water_per_serve = new ORMBinaryRole("has...of_water_per_serve", nonAlcoholicDrink, mass);
+        has_of_water_per_serve.setUpdateStatus("Created");
+        model.addElement(has_of_water_per_serve, "BinaryRole");
+
+        ORMBinaryRole has_of_cholesterol = new ORMBinaryRole("has...of_cholesterol_per_serve", milkBasedDrink, mass);
+        has_of_cholesterol.setUpdateStatus("Created");
+        model.addElement(has_of_cholesterol, "BinaryRole");
+    }
+
+    @Test
+    public void test09() throws Exception {
+
+        currentTestName = "test09";
+
+
+
+        ORMEntityType food = new ORMEntityType("Food");
+        food.setUpdateStatus("Stable");
+        model.addElement(food, "EntityType");
+
+        ORMEntityType serveSize = new ORMEntityType("ServeSize");
+        serveSize.setUpdateStatus("Stable");
+        model.addElement(serveSize, "EntityType");
+
+        ORMBinaryRole has_standard = new ORMBinaryRole("has_standard", food, serveSize);
+        has_standard.setUpdateStatus("Stable");
+        model.addElement(has_standard, "BinaryRole");
+
+        ORMEntityType form = new ORMEntityType("Form");
+        form.setUpdateStatus("Stable");
+        model.addElement(form, "EntityType");
+
+        ORMBinaryRole has_Form = new ORMBinaryRole("has", food, form);
+        has_Form.setUpdateStatus("Stable");
+        model.addElement(has_Form, "BinaryRole");
+
+        ORMEntityType drink = new ORMEntityType("Drink");
+        drink.setUpdateStatus("Stable");
+        model.addElement(drink, "EntityType");
+
+        ORMSubtyping drink_Food = new ORMSubtyping(drink, food);
+        drink_Food.setUpdateStatus("Stable");
+        model.addElement(drink_Food, "Subtyping");
+
+        ORMEntityType drinkType = new ORMEntityType("DrinkType");
+        drinkType.setUpdateStatus("Stable");
+        model.addElement(drinkType, "EntityType");
+
+        ORMBinaryRole is_of_is_of = new ORMBinaryRole("is_of", drink, drinkType, "is_of");
+        is_of_is_of.setUpdateStatus("Stable");
+        //model.addElement(is_of_is_of, "BinaryRole");
+
+        ORMBinaryRole is_of = new ORMBinaryRole("is_of", drink, drinkType);
+        is_of.setUpdateStatus("Modified");
+        is_of.setLastState(is_of_is_of);
+        model.addElement(is_of, "BinaryRole");
+
+        ORMEntityType energy = new ORMEntityType("Energy");
+        energy.setUpdateStatus("Stable");
+        model.addElement(energy, "EntityType");
+
+        ORMBinaryRole provides_per_serve = new ORMBinaryRole("provides...per_serve", drink, energy);
+        provides_per_serve.setUpdateStatus("Stable");
+        model.addElement(provides_per_serve, "BinaryRole");
+
+        ORMEntityType alcoholicDrink = new ORMEntityType("Alcoholic_Drink");
+        alcoholicDrink.setUpdateStatus("Stable");
+        model.addElement(alcoholicDrink, "EntityType");
+
+        ORMSubtyping alcoholicDrink_Drink = new ORMSubtyping(alcoholicDrink, drink);
+        alcoholicDrink_Drink.setUpdateStatus("Stable");
+        model.addElement(alcoholicDrink_Drink, "Subtyping");
+
+        ORMValueType hasAlcoholPercent = new ORMValueType("has", "AlcoholPercent", alcoholicDrink);
+        hasAlcoholPercent.setUpdateStatus("Stable");
+        //model.addElement(hasAlcoholPercent, "ValueType");
+
+        ORMValueType containsAlcoholPercent = new ORMValueType("contains", "AlcoholPercent", alcoholicDrink);
+        containsAlcoholPercent.setUpdateStatus("Modified");
+        containsAlcoholPercent.setLastState(hasAlcoholPercent);
+        model.addElement(containsAlcoholPercent, "ValueType");
+
+        ORMEntityType nonAlcoholicDrink = new ORMEntityType("NonAlcoholic_Drink");
+        nonAlcoholicDrink.setUpdateStatus("Stable");
+        model.addElement(nonAlcoholicDrink, "EntityType");
+
+        ORMSubtyping nonAlcoholicDrink_Drink = new ORMSubtyping(nonAlcoholicDrink, drink);
+        nonAlcoholicDrink_Drink.setUpdateStatus("Stable");
+        model.addElement(nonAlcoholicDrink_Drink, "Subtyping");
+
+        ORMValueType hasWaterPercent_NonAlcoholic = new ORMValueType("has", "WaterPercent", nonAlcoholicDrink);
+        hasWaterPercent_NonAlcoholic.setUpdateStatus("Stable");
+        //model.addElement(hasWaterPercent_NonAlcoholic, "ValueType");
+
+        ORMValueType hasWaterPercent = new ORMValueType("has", "WaterPercent", drink);
+        hasWaterPercent.setUpdateStatus("Modified");
+        hasWaterPercent.setLastState(hasWaterPercent_NonAlcoholic);
+        model.addElement(hasWaterPercent, "ValueType");
+
+        ORMEntityType milkBasedDrink = new ORMEntityType("MilkBased_Drink");
+        milkBasedDrink.setUpdateStatus("Stable");
+        model.addElement(milkBasedDrink, "EntityType");
+
+        ORMSubtyping milkBasedDrink_nonAlcoholicDrink = new ORMSubtyping(milkBasedDrink, nonAlcoholicDrink);
+        milkBasedDrink_nonAlcoholicDrink.setUpdateStatus("Stable");
+        //model.addElement(milkBasedDrink_nonAlcoholicDrink, "Subtyping");
+
+        ORMSubtyping milkBasedDrink_alcoholicDrink = new ORMSubtyping(milkBasedDrink, alcoholicDrink);
+        milkBasedDrink_alcoholicDrink.setUpdateStatus("Modified");
+        milkBasedDrink_alcoholicDrink.setLastState(milkBasedDrink_nonAlcoholicDrink);
+        model.addElement(milkBasedDrink_alcoholicDrink, "Subtyping");
+
+        ORMEntityType fattyAcidType = new ORMEntityType("FattyAcidType");
+        fattyAcidType.setUpdateStatus("Stable");
+        model.addElement(fattyAcidType, "EntityType");
+
+        ORMBinaryRole contains = new ORMBinaryRole("contains", milkBasedDrink, fattyAcidType);
+        contains.setUpdateStatus("Stable");
+        model.addElement(contains, "BinaryRole");
+
+        ORMEntityType mass = new ORMEntityType("Mass");
+        mass.setUpdateStatus("Stable");
+        model.addElement(mass, "EntityType");
+
+        ORMBinaryRole has_per_serve = new ORMBinaryRole("has...per_serve", drink, mass);
+        has_per_serve.setUpdateStatus("Stable");
+        model.addElement(has_per_serve, "BinaryRole");
+
+        ORMBinaryRole has_of_water_per_serve = new ORMBinaryRole("has...of_water_per_serve", nonAlcoholicDrink, mass);
+        has_of_water_per_serve.setUpdateStatus("Stable");
+        model.addElement(has_of_water_per_serve, "BinaryRole");
+
+        ORMBinaryRole has_of_cholesterol = new ORMBinaryRole("has...of_cholesterol_per_serve", milkBasedDrink, mass);
+        has_of_cholesterol.setUpdateStatus("Stable");
+        model.addElement(has_of_cholesterol, "BinaryRole");
+    }
+
+    @Test
+    public void test10() throws Exception {
+
+        currentTestName = "test10";
+
+
+
+        ORMEntityType food = new ORMEntityType("Food");
+        food.setUpdateStatus("Deleted");
+        model.addElement(food, "EntityType");
+
+        ORMEntityType serveSize = new ORMEntityType("ServeSize");
+        serveSize.setUpdateStatus("Deleted");
+        model.addElement(serveSize, "EntityType");
+
+        ORMBinaryRole has_standard = new ORMBinaryRole("has_standard", food, serveSize);
+        has_standard.setUpdateStatus("Deleted");
+        model.addElement(has_standard, "BinaryRole");
+
+        ORMEntityType form = new ORMEntityType("Form");
+        form.setUpdateStatus("Deleted");
+        model.addElement(form, "EntityType");
+
+        ORMBinaryRole has_Form = new ORMBinaryRole("has", food, form);
+        has_Form.setUpdateStatus("Deleted");
+        model.addElement(has_Form, "BinaryRole");
+
+        ORMEntityType drink = new ORMEntityType("Drink");
+        drink.setUpdateStatus("Stable");
+        model.addElement(drink, "EntityType");
+
+        ORMSubtyping drink_Food = new ORMSubtyping(drink, food);
+        drink_Food.setUpdateStatus("Deleted");
+        model.addElement(drink_Food, "Subtyping");
+
+        ORMEntityType drinkType = new ORMEntityType("DrinkType");
+        drinkType.setUpdateStatus("Stable");
+        model.addElement(drinkType, "EntityType");
+
+        ORMBinaryRole is_of = new ORMBinaryRole("is_of", drink, drinkType);
+        is_of.setUpdateStatus("Stable");
+        model.addElement(is_of, "BinaryRole");
+
+        ORMEntityType energy = new ORMEntityType("Energy");
+        energy.setUpdateStatus("Deleted");
+        model.addElement(energy, "EntityType");
+
+        ORMBinaryRole provides_per_serve = new ORMBinaryRole("provides...per_serve", drink, energy);
+        provides_per_serve.setUpdateStatus("Deleted");
+        model.addElement(provides_per_serve, "BinaryRole");
+
+        ORMEntityType alcoholicDrink = new ORMEntityType("Alcoholic_Drink");
+        alcoholicDrink.setUpdateStatus("Stable");
+        model.addElement(alcoholicDrink, "EntityType");
+
+        ORMSubtyping alcoholicDrink_Drink = new ORMSubtyping(alcoholicDrink, drink);
+        alcoholicDrink_Drink.setUpdateStatus("Stable");
+        model.addElement(alcoholicDrink_Drink, "Subtyping");
+
+        ORMValueType containsAlcoholPercent = new ORMValueType("contains", "AlcoholPercent", alcoholicDrink);
+        containsAlcoholPercent.setUpdateStatus("Stable");
+        model.addElement(containsAlcoholPercent, "ValueType");
+
+        ORMEntityType nonAlcoholicDrink = new ORMEntityType("NonAlcoholic_Drink");
+        nonAlcoholicDrink.setUpdateStatus("Stable");
+        model.addElement(nonAlcoholicDrink, "EntityType");
+
+        ORMSubtyping nonAlcoholicDrink_Drink = new ORMSubtyping(nonAlcoholicDrink, drink);
+        nonAlcoholicDrink_Drink.setUpdateStatus("Stable");
+        model.addElement(nonAlcoholicDrink_Drink, "Subtyping");
+
+        ORMValueType hasWaterPercent = new ORMValueType("has", "WaterPercent", drink);
+        hasWaterPercent.setUpdateStatus("Stable");
+        model.addElement(hasWaterPercent, "ValueType");
+
+        ORMEntityType milkBasedDrink = new ORMEntityType("MilkBased_Drink");
+        milkBasedDrink.setUpdateStatus("Stable");
+        model.addElement(milkBasedDrink, "EntityType");
+
+        ORMSubtyping milkBasedDrink_alcoholicDrink = new ORMSubtyping(milkBasedDrink, alcoholicDrink);
+        milkBasedDrink_alcoholicDrink.setUpdateStatus("Stable");
+        model.addElement(milkBasedDrink_alcoholicDrink, "Subtyping");
+
+        ORMEntityType fattyAcidType = new ORMEntityType("FattyAcidType");
+        fattyAcidType.setUpdateStatus("Stable");
+        model.addElement(fattyAcidType, "EntityType");
+
+        ORMBinaryRole contains = new ORMBinaryRole("contains", milkBasedDrink, fattyAcidType);
+        contains.setUpdateStatus("Stable");
+        model.addElement(contains, "BinaryRole");
+
+        ORMEntityType mass = new ORMEntityType("Mass");
+        mass.setUpdateStatus("Stable");
+        model.addElement(mass, "EntityType");
+
+        ORMBinaryRole has_per_serve = new ORMBinaryRole("has...per_serve", drink, mass);
+        has_per_serve.setUpdateStatus("Stable");
+        model.addElement(has_per_serve, "BinaryRole");
+
+        ORMBinaryRole has_of_water_per_serve = new ORMBinaryRole("has...of_water_per_serve", nonAlcoholicDrink, mass);
+        has_of_water_per_serve.setUpdateStatus("Stable");
+        model.addElement(has_of_water_per_serve, "BinaryRole");
+
+        ORMBinaryRole has_of_cholesterol = new ORMBinaryRole("has...of_cholesterol_per_serve", milkBasedDrink, mass);
+        has_of_cholesterol.setUpdateStatus("Deleted");
+        model.addElement(has_of_cholesterol, "BinaryRole");
+    }
+
+    @Test
+    public void test11() throws Exception {
+
+        currentTestName = "test11";
+
+
+
+        ORMEntityType drink = new ORMEntityType("Drink");
+        drink.setUpdateStatus("Stable");
+        model.addElement(drink, "EntityType");
+
+        ORMEntityType drinkType = new ORMEntityType("DrinkType");
+        drinkType.setUpdateStatus("Stable");
+        model.addElement(drinkType, "EntityType");
+
+        ORMBinaryRole is_of = new ORMBinaryRole("is_of", drink, drinkType);
+        is_of.setUpdateStatus("Stable");
+        model.addElement(is_of, "BinaryRole");
+
+        ORMEntityType alcoholicDrink = new ORMEntityType("Alcoholic_Drink");
+        alcoholicDrink.setUpdateStatus("Deleted");
+        model.addElement(alcoholicDrink, "EntityType");
+
+        ORMSubtyping alcoholicDrink_Drink = new ORMSubtyping(alcoholicDrink, drink);
+        alcoholicDrink_Drink.setUpdateStatus("Deleted");
+        model.addElement(alcoholicDrink_Drink, "Subtyping");
+
+        ORMValueType containsAlcoholPercent = new ORMValueType("contains", "AlcoholPercent", alcoholicDrink);
+        containsAlcoholPercent.setUpdateStatus("Deleted");
+        model.addElement(containsAlcoholPercent, "ValueType");
+
+        ORMEntityType nonAlcoholicDrink = new ORMEntityType("NonAlcoholic_Drink");
+        nonAlcoholicDrink.setUpdateStatus("Stable");
+        model.addElement(nonAlcoholicDrink, "EntityType");
+
+        ORMSubtyping nonAlcoholicDrink_Drink = new ORMSubtyping(nonAlcoholicDrink, drink);
+        nonAlcoholicDrink_Drink.setUpdateStatus("Stable");
+        model.addElement(nonAlcoholicDrink_Drink, "Subtyping");
+
+        ORMValueType hasWaterPercent = new ORMValueType("has", "WaterPercent", drink);
+        hasWaterPercent.setUpdateStatus("Stable");
+        model.addElement(hasWaterPercent, "ValueType");
+
+        ORMEntityType milkBasedDrink = new ORMEntityType("MilkBased_Drink");
+        milkBasedDrink.setUpdateStatus("Stable");
+        model.addElement(milkBasedDrink, "EntityType");
+
+        ORMUnaryRole isAlcoholic = new ORMUnaryRole("isAlcoholic", milkBasedDrink);
+        isAlcoholic.setUpdateStatus("Created");
+        model.addElement(isAlcoholic, "UnaryRole");
+
+        ORMSubtyping milkBasedDrink_alcoholicDrink = new ORMSubtyping(milkBasedDrink, alcoholicDrink);
+        milkBasedDrink_alcoholicDrink.setUpdateStatus("Stable");
+        //model.addElement(milkBasedDrink_alcoholicDrink, "Subtyping");
+
+        ORMSubtyping milkBasedDrink_drink = new ORMSubtyping(milkBasedDrink, drink);
+        milkBasedDrink_drink.setUpdateStatus("Modified");
+        milkBasedDrink_drink.setLastState(milkBasedDrink_alcoholicDrink);
+        model.addElement(milkBasedDrink_drink, "Subtyping");
+
+        ORMEntityType fattyAcidType = new ORMEntityType("FattyAcidType");
+        fattyAcidType.setUpdateStatus("Stable");
+        model.addElement(fattyAcidType, "EntityType");
+
+        ORMBinaryRole contains = new ORMBinaryRole("contains", milkBasedDrink, fattyAcidType);
+        contains.setUpdateStatus("Stable");
+        model.addElement(contains, "BinaryRole");
+
+        ORMEntityType mass = new ORMEntityType("Mass");
+        mass.setUpdateStatus("Stable");
+        model.addElement(mass, "EntityType");
+
+        ORMBinaryRole has_per_serve = new ORMBinaryRole("has...per_serve", drink, mass);
+        has_per_serve.setUpdateStatus("Stable");
+        model.addElement(has_per_serve, "BinaryRole");
+
+        ORMBinaryRole has_of_water_per_serve = new ORMBinaryRole("has...of_water_per_serve", nonAlcoholicDrink, mass);
+        has_of_water_per_serve.setUpdateStatus("Stable");
+        model.addElement(has_of_water_per_serve, "BinaryRole");
     }
 }
