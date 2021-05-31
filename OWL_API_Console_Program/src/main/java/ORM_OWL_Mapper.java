@@ -1,12 +1,16 @@
 import ORMModel.*;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.io.OWLOntologyInputSourceException;
+import org.semanticweb.owlapi.io.UnparsableOntologyException;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,16 +25,20 @@ public class ORM_OWL_Mapper {
         try {
             if (!pathToOntology.isEmpty()) {
                 File file = new File(pathToOntology);
-                manager.loadOntologyFromOntologyDocument(file);
+                OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+                if (ontology.isAnonymous()) {
+                    throw new EmptyOntologyFileException(pathToOntology);
+                }
             } else {
                 manager.createOntology(DEFAULT_IRI);
             }
+        } catch (OWLOntologyInputSourceException e) {
+            throw new NotFoundOntologyFileException(pathToOntology);
+        } catch (TestOntologyException e) {
+            throw e;
         } catch (Exception e) {
-            String[] splitPath = pathToOntology.split("/");
-            throw new Exception("Файл " + splitPath[splitPath.length - 1] + " не найден в текущей папке");
+            throw new InvalidOntologyFileException(pathToOntology);
         }
-
-
 
         ORMtoOWLEntityTypeMapper entityTypeMapper = new ORMtoOWLEntityTypeMapper(manager);
 
@@ -136,13 +144,18 @@ public class ORM_OWL_Mapper {
         try {
             if (!pathToOntology.isEmpty()) {
                 File file = new File(pathToOntology);
-                manager.loadOntologyFromOntologyDocument(file);
+                OWLOntology ontology = manager.loadOntologyFromOntologyDocument(file);
+                if (ontology.isAnonymous()) {
+                    throw new EmptyOntologyFileException(pathToOntology);
+                }
             }
+        } catch (OWLOntologyInputSourceException e) {
+            throw new NotFoundOntologyFileException(pathToOntology);
+        } catch (EmptyOntologyFileException e) {
+            throw e;
         } catch (Exception e) {
-            String[] splitPath = pathToOntology.split("/");
-            throw new Exception("Файл " + splitPath[splitPath.length - 1] + " не найден в текущей папке");
+            throw new InvalidOntologyFileException(pathToOntology);
         }
-
 
         ORMModel newModel = new ORMModel();
 

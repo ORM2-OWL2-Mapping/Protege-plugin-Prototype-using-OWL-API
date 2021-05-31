@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.Test;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.OWLXMLDocumentFormat;
+import org.semanticweb.owlapi.io.OWLOntologyInputSourceException;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.util.OWLEntityRenamer;
 
@@ -20,6 +21,59 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertTrue;
+
+abstract class TestOntologyException extends Exception {
+    private String errorMessage;
+
+    protected void setErrorMessage(String message) {
+        errorMessage = message;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+}
+class NotFoundOntologyFileException extends TestOntologyException {
+    NotFoundOntologyFileException(String filename) {
+        super();
+        String[] splitFilename = filename.split("/");
+        String message = "Файл " + splitFilename[splitFilename.length - 1] + " не найден в текущей папке";
+        setErrorMessage(message);
+    }
+}
+
+class EmptyOntologyFileException extends TestOntologyException {
+    EmptyOntologyFileException(String filename) {
+        super();
+        String[] splitFilename = filename.split("/");
+        String message = "Файл " + splitFilename[splitFilename.length - 1] + " пустой";
+        setErrorMessage(message);
+    }
+}
+
+class InvalidOntologyFileException extends TestOntologyException {
+    InvalidOntologyFileException(String filename) {
+        super();
+        String[] splitFilename = filename.split("/");
+        String message = "Файл " + splitFilename[splitFilename.length - 1] + " содержит некорректную онтологию";
+        setErrorMessage(message);
+    }
+}
+
+class DifferentOntologiesException extends TestOntologyException {
+    DifferentOntologiesException(String message) {
+        super();
+        setErrorMessage(message);
+    }
+}
+
+class TestFailedException extends TestOntologyException {
+    TestFailedException(String testname) {
+        super();
+        String message = testname + "провален";
+        setErrorMessage(message);
+    }
+}
 
 public class TestingClass extends TestBase {
 
@@ -60,9 +114,15 @@ public class TestingClass extends TestBase {
         OWLOntology ontology_1 = null;
         try {
             ontology_1 = manager_1.loadOntologyFromOntologyDocument(file);
+            if (ontology_1.isAnonymous()) {
+                throw new EmptyOntologyFileException(ontology_file_1);
+            }
+        } catch (OWLOntologyInputSourceException e) {
+            throw new NotFoundOntologyFileException(ontology_file_1);
+        } catch (TestOntologyException e) {
+            throw e;
         } catch (Exception e) {
-            String[] splitPath = ontology_file_1.split("/");
-            throw new Exception("Файл " + splitPath[splitPath.length - 1] + " не найден в текущей папке");
+            throw new InvalidOntologyFileException(ontology_file_1);
         }
         IRI ontology_1_iri = ontology_1.getOntologyID().getOntologyIRI().get();
 
@@ -85,8 +145,7 @@ public class TestingClass extends TestBase {
             boolean res_2_1 = equal(ontology_2, ontology_1);
             assertTrue(res_2_1);
         } catch (AssertionError e) {
-            System.out.println(e.getMessage());
-            throw new Exception();
+            throw new DifferentOntologiesException(e.getMessage());
         }
 
     }

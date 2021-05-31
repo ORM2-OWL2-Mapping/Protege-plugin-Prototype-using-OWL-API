@@ -30,9 +30,9 @@ public class ORM_OWL_Testing extends TestingClass {
         String pathToOntology = preparedOntologyIsExist ? makePreparedOntologyFilename(currentTestName) : "";
         try {
             ontology = ORM_OWL_Mapper.convertORMtoOWL(model, pathToOntology);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new Exception();
+        } catch (TestOntologyException e) {
+            System.out.println(e.getErrorMessage());
+            throw new TestFailedException(currentTestName);
         }
 
         saveOntologyInFile(ontology, makeActualOntologyFilename(currentTestName));
@@ -41,13 +41,11 @@ public class ORM_OWL_Testing extends TestingClass {
             compareOntologies(makeExpectedOntologyFilename(currentTestName), makeActualOntologyFilename(currentTestName));
             System.out.println("-----------------------");
             System.out.println(currentTestName + " пройден успешно");
-        } catch (Exception e) {
-            if (e.getMessage() != null) {
-                System.out.println(e.getMessage());
-            }
+        } catch (TestOntologyException e) {
+            System.out.println(e.getErrorMessage());
             System.out.println("-----------------------");
             System.out.println(currentTestName + " провален");
-            throw new Exception();
+            throw new TestFailedException(currentTestName);
         }
     }
 

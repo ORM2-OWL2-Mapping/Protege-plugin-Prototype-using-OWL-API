@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.semanticweb.owlapi.model.OWLOntology;
 import ORMModel.*;
 
+
 import java.io.FileNotFoundException;
 import java.nio.file.NoSuchFileException;
 import java.util.Set;
@@ -258,12 +259,18 @@ public class OWL_ORM_Testing extends TestingClass {
 
     private boolean assertModels(ORMModel expectedModel, ORMModel actualModel) {
 
+        boolean entityTypesListsIsEqual = assertEntityTypesLists(expectedModel, actualModel);
+        boolean subtypesListsIsEqual = assertSubtypesLists(expectedModel, actualModel);
+        boolean valueTypesListsIsEqual = assertValueTypesLists(expectedModel, actualModel);
+        boolean unaryRolesListsIsEqual = assertUnaryRolesLists(expectedModel, actualModel);
+        boolean binaryRolesListsIsEqual = assertBinaryRolesLists(expectedModel, actualModel);
+
         return
-                assertEntityTypesLists(expectedModel, actualModel)
-            &&  assertSubtypesLists(expectedModel, actualModel)
-            &&  assertValueTypesLists(expectedModel, actualModel)
-            &&  assertUnaryRolesLists(expectedModel, actualModel)
-            &&  assertBinaryRolesLists(expectedModel, actualModel);
+                entityTypesListsIsEqual
+            &&  subtypesListsIsEqual
+            &&  valueTypesListsIsEqual
+            &&  unaryRolesListsIsEqual
+            &&  binaryRolesListsIsEqual;
     }
 
     public String currentTestName;
@@ -280,9 +287,9 @@ public class OWL_ORM_Testing extends TestingClass {
         ORMModel newModel = new ORMModel();
         try {
             newModel = ORM_OWL_Mapper.convertOWLtoORM(makePreparedOntologyFilename(currentTestName));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new Exception();
+        } catch (TestOntologyException e) {
+            System.out.println(e.getErrorMessage());
+            throw new TestFailedException(currentTestName);
         }
 
         boolean isEqualsModels = assertModels(model, newModel);
@@ -292,7 +299,7 @@ public class OWL_ORM_Testing extends TestingClass {
             System.out.println(currentTestName + " пройден успешно");
         } else {
             System.out.println(currentTestName + " провален");
-            throw new Exception();
+            throw new TestFailedException(currentTestName);
         }
     }
 
