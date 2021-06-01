@@ -22,8 +22,18 @@ import java.util.stream.Stream;
 
 import static org.junit.Assert.assertTrue;
 
+
+
 abstract class TestOntologyException extends Exception {
     private String errorMessage;
+
+    TestOntologyException() {
+        super();
+    }
+
+    TestOntologyException(String message) {
+        super(message);
+    }
 
     protected void setErrorMessage(String message) {
         errorMessage = message;
@@ -33,6 +43,7 @@ abstract class TestOntologyException extends Exception {
         return errorMessage;
     }
 }
+
 class NotFoundOntologyFileException extends TestOntologyException {
     NotFoundOntologyFileException(String filename) {
         super();
@@ -74,6 +85,16 @@ class TestFailedException extends TestOntologyException {
         setErrorMessage(message);
     }
 }
+
+class NotFoundDirectoryException extends TestOntologyException {
+    NotFoundDirectoryException(String path) {
+        super();
+        String[] splitPath = path.split("\\\\");
+        setErrorMessage("Папка " + splitPath[splitPath.length - 1] + " отсутствует в папке " + splitPath[splitPath.length - 2]);
+    }
+}
+
+
 
 public class TestingClass extends TestBase {
 

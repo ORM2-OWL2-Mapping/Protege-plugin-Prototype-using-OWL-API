@@ -1,11 +1,16 @@
 import ORMModel.*;
 import org.junit.After;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 //import org.junit.jupiter.api.Test;
 import org.junit.Test;
 import org.junit.Before;
 import org.semanticweb.owlapi.model.OWLOntology;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class ORM_OWL_Testing extends TestingClass {
 
@@ -16,6 +21,7 @@ public class ORM_OWL_Testing extends TestingClass {
     public String currentTestName;
     public boolean preparedOntologyIsExist = true;
 
+
     @Before
     public void beforeTest() throws Exception {
         model = new ORMModel();
@@ -25,6 +31,10 @@ public class ORM_OWL_Testing extends TestingClass {
     @After
     public void afterTest() throws Exception {
 
+        Path path = Paths.get(TEST_DIR + currentTestName);
+        if (!Files.exists(path)) {
+            throw new NotFoundDirectoryException(path.toString());
+        }
         setLogPrintStream(currentTestName);
         OWLOntology ontology = null;
         String pathToOntology = preparedOntologyIsExist ? makePreparedOntologyFilename(currentTestName) : "";

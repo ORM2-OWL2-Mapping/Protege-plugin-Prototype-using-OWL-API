@@ -1,5 +1,6 @@
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.semanticweb.owlapi.model.OWLOntology;
@@ -7,7 +8,10 @@ import ORMModel.*;
 
 
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 
 public class OWL_ORM_Testing extends TestingClass {
@@ -275,6 +279,7 @@ public class OWL_ORM_Testing extends TestingClass {
 
     public String currentTestName;
 
+
     @Before
     public void beforeTest() throws Exception {
         model = new ORMModel();
@@ -282,6 +287,11 @@ public class OWL_ORM_Testing extends TestingClass {
 
     @After
     public void afterTest() throws Exception {
+
+        Path path = Paths.get(TEST_DIR + currentTestName);
+        if (!Files.exists(path)) {
+            throw new NotFoundDirectoryException(path.toString());
+        }
 
         setLogPrintStream(currentTestName);
         ORMModel newModel = new ORMModel();

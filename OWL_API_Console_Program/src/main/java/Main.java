@@ -4,6 +4,9 @@ import org.junit.runner.notification.Failure;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 public class Main {
@@ -12,10 +15,28 @@ public class Main {
 
         PrintStream console = System.out;
 
+        PrintStream o = new PrintStream(new File("testingResults.txt"));
+        System.setOut(o);
+
+        Path path = Paths.get(System.getProperty("user.dir") + "/tests");
+        if (!Files.exists(path)) {
+            System.out.println("Отсутствует папка tests");
+            throw new NotFoundDirectoryException(path.toString());
+        }
+        path = Paths.get(System.getProperty("user.dir") + "/tests/ORM_to_OWL");
+        if (!Files.exists(path)) {
+            System.out.println("Отсутствует папка ORM_to_OWL в папке tests");
+            throw new NotFoundDirectoryException(path.toString());
+        }
+        path = Paths.get(System.getProperty("user.dir") + "/tests/OWL_to_ORM");
+        if (!Files.exists(path)) {
+            System.out.println("Отсутствует папка OWL_to_ORM в папке tests");
+            throw new NotFoundDirectoryException(path.toString());
+        }
+
+
         Result result_ORM_OWL = JUnitCore.runClasses(ORM_OWL_Testing.class);
         Result result_OWL_ORM = JUnitCore.runClasses(OWL_ORM_Testing.class);
-
-        PrintStream o = new PrintStream(new File("testingResults.txt"));
 
         System.setOut(o);
 
@@ -30,6 +51,9 @@ public class Main {
             System.out.println("Список проваленных тестов: ");
             for (Failure failure : result_ORM_OWL.getFailures()) {
                 System.out.println(failure.getTestHeader());
+                if (failure.getException() instanceof NotFoundDirectoryException) {
+                    System.out.println(((NotFoundDirectoryException) failure.getException()).getErrorMessage());
+                }
             }
         }
 
@@ -42,6 +66,9 @@ public class Main {
             System.out.println("Список проваленных тестов: ");
             for (Failure failure : result_OWL_ORM.getFailures()) {
                 System.out.println(failure.getTestHeader());
+                if (failure.getException() instanceof NotFoundDirectoryException) {
+                    System.out.println(((NotFoundDirectoryException) failure.getException()).getErrorMessage());
+                }
             }
         }
     }
